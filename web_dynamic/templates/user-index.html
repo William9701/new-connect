@@ -145,7 +145,10 @@
       <div class="list-container">
         {% for content in contents %}
         <div class="vid-list">
-          <a href="/play/{{ content.id }}/{{ user.id }}">
+          <a
+            onclick="views('{{ content.id }}', '{{ user.id }}')"
+            href="/play/{{ content.id }}/{{ user.id }}"
+          >
             <video
               autoplay
               src="{{ content.content }}"
@@ -162,7 +165,13 @@
               >
               {% endif %} {% endfor %}
               <p>{{ content.description }}</p>
-              <p>{{ content.number_of_views }} views</p>
+              {% set ns = namespace(view_count=0) %} {% for view in views %} {%
+              if content.id == view.content_id %} {% set ns.view_count =
+              ns.view_count + 1 %} {% endif %} {% endfor %}
+              <p id="content_view">
+                {{ ns.view_count }} {{ 'view' if ns.view_count == 1 else 'views'
+                }}
+              </p>
             </div>
           </div>
         </div>

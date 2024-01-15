@@ -296,3 +296,27 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+function views(content_id, user_id) {
+  event.preventDefault();
+  console.log(user_id);
+  var data = {
+    user_id: user_id,
+    content_id: content_id,
+  };
+  fetch("http://127.0.0.1:5001/api/v1/views/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  }).then(() => {
+    fetch(`http://127.0.0.1:5001/api/v1/views/${content_id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        document.getElementById(
+          "content_view"
+        ).textContent = `${data.views} views`;
+        window.location.href = `/play/${content_id}/${user_id}`;
+      });
+  });
+}

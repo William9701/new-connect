@@ -12,6 +12,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from os import getenv
 from dotenv import load_dotenv
+from models.view import View
 
 from models.wrapped_session import Wrapped_Session
 
@@ -24,7 +25,8 @@ classes = {"Comment": Comment,
            "Library": Library,
            "History": History,
            "Wrapped_session": Wrapped_Session,
-           "Reaction": Reaction
+           "Reaction": Reaction,
+           "View": View
            }
 
 
@@ -144,3 +146,13 @@ class DBStorage:
             if reaction.user_id == user_id and reaction.content_id == content_id:
                 return reaction  # return the Reaction object
         return None
+    
+    def get_view(self, cls, user_id, content_id):
+        if cls not in classes.values():
+            return None
+        all_views = models.storage.all(View).values()
+
+        for view in all_views:
+            if view.user_id == user_id and view.content_id == content_id:
+                return True  # return the Reaction object
+        return False

@@ -11,3 +11,4 @@ from api.v1.views.users import *
 from api.v1.views.locations import *
 from api.v1.views.histories import *
 from api.v1.views.reactions import *
+from api.v1.views.views import *

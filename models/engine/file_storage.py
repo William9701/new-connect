@@ -2,6 +2,7 @@ import json
 
 from models.library import Library
 from models.reaction import Reaction
+from models.view import View
 
 
 class Filestorage:
@@ -57,7 +58,8 @@ class Filestorage:
                    "Library": Library,
                    "History": History,
                    "Wrapped_session": Wrapped_Session,
-                   "Reaction": Reaction
+                   "Reaction": Reaction,
+                   "View": View
                    }
         try:
             with open(self.__file_path, 'r') as f:
@@ -95,7 +97,8 @@ class Filestorage:
                    "Library": Library,
                    "History": History,
                    "Wrapped_session": Wrapped_Session,
-                   "Reaction": Reaction
+                   "Reaction": Reaction,
+                   "View": View
                    }
         if cls not in classes.values():
             return None
@@ -127,7 +130,8 @@ class Filestorage:
                    "Library": Library,
                    "History": History,
                    "Wrapped_session": Wrapped_Session,
-                   "Reaction": Reaction
+                   "Reaction": Reaction,
+                   "View": View
                    }
         all_class = classes.values()
 

@@ -3,6 +3,7 @@ from flask import request, jsonify
 import os
 import uuid
 from flask import flash, abort, redirect, url_for
+from models.view import View
 
 from models import storage
 from models.content import Content
@@ -19,6 +20,7 @@ from models.engine import db_storage
 import requests
 
 app = Flask(__name__)
+app.jinja_env.globals.update(datetime=datetime)
 app.secret_key = 'william667'
 bcrypt = Bcrypt(app)
 
@@ -112,6 +114,7 @@ def login():
         users = storage.all(User).values()
         locations = storage.all(Location).values()
         contents = storage.all(Content).values()
+        views = storage.all(View).values()
 
         for user in users:
             if user.username == username:
@@ -119,7 +122,7 @@ def login():
                     # Successful login, you can redirect to another page or return a response
                     return render_template('user-index.html', user=user, users=users, cache_id=cache_id,
                                            locations=locations,
-                                           contents=contents)
+                                           contents=contents, views=views)
                 else:
                     # Incorrect password
                     flash("Invalid password. Please try again.")
@@ -187,8 +190,9 @@ def user_indexs():
     locations = storage.all(Location).values()
     contents = storage.all(Content).values()
     users = storage.all(User).values()
+    views = storage.all(View).values()
     cache_id = str(uuid.uuid4())
-    return render_template('user-index.html', user=user, cache_id=cache_id, users=users, locations=locations, contents=contents)
+    return render_template('user-index.html', user=user, cache_id=cache_id, users=users, locations=locations, contents=contents, views=views)
 
 
 @app.route('/user_index/<string:user_id>', strict_slashes=False)
@@ -197,8 +201,9 @@ def user_index(user_id):
     locations = storage.all(Location).values()
     contents = storage.all(Content).values()
     users = storage.all(User).values()
+    views = storage.all(View).values()
     cache_id = str(uuid.uuid4())
-    return render_template('user-index.html', user=user, cache_id=cache_id, users=users, locations=locations, contents=contents)
+    return render_template('user-index.html', user=user, cache_id=cache_id, users=users, locations=locations, contents=contents, views=views)
 
 
 @app.route('/signup', strict_slashes=False)
@@ -244,8 +249,10 @@ def play(content_id, user_id):
     user = storage.get(User, user_id)
     users = storage.all(User).values()
     contents = storage.all(Content).values()
+    views = storage.all(View).values()
     locations = storage.all(Location).values()
     all_reactions = storage.all(Reaction).values()
+    now = datetime.now()
 
     # Initialize counts
     likes_counts = {}
@@ -259,10 +266,7 @@ def play(content_id, user_id):
         elif reaction.reaction == 'dislike':
             dislikes_counts[reaction.content_id] = dislikes_counts.get(
                 reaction.content_id, 0) + 1
-    return render_template('play-video.html', content=content, users=users, contents=contents, locations=locations, likes_counts=likes_counts, dislikes_counts=dislikes_counts, user=user)
-
-
-
+    return render_template('play-video.html', content=content, users=users, contents=contents, locations=locations, likes_counts=likes_counts, dislikes_counts=dislikes_counts, user=user, views=views, now=now)
 
 
 @app.route('/vid-chat/', strict_slashes=False)
