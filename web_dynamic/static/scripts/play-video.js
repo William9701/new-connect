@@ -117,3 +117,32 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 });
+
+function Subscription(user_id, content_user_id) {
+  event.preventDefault();
+
+  // Define the data to be sent in the body of the request
+  let data = {
+    subscriber_id: user_id,
+    subscribed_id: content_user_id,
+  };
+
+  fetch(
+    `http://127.0.0.1:5001/api/v1/users/${user_id}/subscribe/${content_user_id}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      document.getElementById("sub_button").textContent = "Unsubscribe";
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+}

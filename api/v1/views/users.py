@@ -8,6 +8,41 @@ from flasgger.utils import swag_from
 from sqlalchemy.exc import IntegrityError
 
 
+@app_views.route('/users/<subscriber_id>/subscribe/<subscribed_id>', methods=['POST'], strict_slashes=False)
+def subscribe(subscriber_id, subscribed_id):
+    """
+    Subscribes a user to another user
+    """
+    subscriber = storage.get(User, subscriber_id)
+    subscribed = storage.get(User, subscribed_id)
+
+    if not subscriber or not subscribed:
+        abort(404)
+
+    # Add the subscription
+    subscriber.subscribed.append(subscribed)
+    storage.save()
+
+    return make_response(jsonify(subscriber.to_dict()), 200)
+
+@app_views.route('/users/<subscriber_id>/unsubscribe/<subscribed_id>', methods=['POST'], strict_slashes=False)
+def unsubscribe(subscriber_id, subscribed_id):
+    """
+    Unsubscribes a user from another user
+    """
+    subscriber = storage.get(User, subscriber_id)
+    subscribed = storage.get(User, subscribed_id)
+
+    if not subscriber or not subscribed:
+        abort(404)
+
+    # Remove the subscription
+    subscriber.subscribed.remove(subscribed)
+    storage.save()
+
+    return make_response(jsonify(subscriber.to_dict()), 200)
+
+
 @app_views.route('/users', methods=['GET'], strict_slashes=False)
 @swag_from('documentation/user/all_users.yml')
 def get_users():
@@ -25,12 +60,19 @@ def get_users():
 @app_views.route('/users/<user_id>', methods=['GET'], strict_slashes=False)
 @swag_from('documentation/user/get_user.yml', methods=['GET'])
 def get_user(user_id):
-    """ Retrieves an user """
+    """ Retrieves a user along with their subscribers and subscriptions """
     user = storage.get(User, user_id)
     if not user:
         abort(404)
 
-    return jsonify(user.to_dict())
+    user_dict = user.to_dict()
+
+    # Add subscribers and subscriptions to the response
+    user_dict['subscribers'] = [
+        subscriber.id for subscriber in user.subscribers]
+    user_dict['subscribed'] = [subscribed.id for subscribed in user.subscribed]
+
+    return jsonify(user_dict)
 
 
 @app_views.route('/users/<user_id>', methods=['DELETE'],

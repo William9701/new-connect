@@ -68,12 +68,11 @@
           <div class="play-video-info">
             {% set ns = namespace(view_count=0) %} {% for view in views %} {% if
             content.id == view.content_id %} {% set ns.view_count =
-            ns.view_count + 1 %} {% endif %} {% endfor %} {% set days_ago = (now
-            - content.created_at).days %}
+            ns.view_count + 1 %} {% endif %} {% endfor %}
+
             <p id="content_view">
               {{ ns.view_count }} {{ 'view' if ns.view_count == 1 else 'views'
-              }} &bull; {{ days_ago }} {{ 'day' if days_ago == 1 else 'days' }}
-              ago
+              }} &bull; {{ content.created_at|format_time_diff(now) }}
             </p>
 
             <div>
@@ -115,13 +114,26 @@
             <img src="{{ user.image }}" />
             <div>
               <p>{{ user.username }}</p>
-              <span>500k Subscribers</span>
+              {% endif %} {% endfor %} {% set count =
+              Subscribers_count(content.user_id) %}
+              <span
+                >{{ count }} {{ 'Subscriber' if count == 1 else 'Subscribers'
+                }}</span
+              >
             </div>
-            <button type="button">Subscribe</button>
+            <button
+              id="sub_button"
+              onclick="Subscription('{{ user.id }}', '{{ content.user_id }}')"
+              type="button"
+            >
+              {% if content.user_id in subscribed_ids %} Unsubscribe {% else %}
+              Subscribe {% endif %}
+            </button>
           </div>
 
           <div class="vid-description">
             <p>{{ content.description }}</p>
+            {% for user in users%} {% if user.id == content.user_id%}
             <p>Subscribe here to watch more</p>
             <hr />
             <h4>134 Comments</h4>

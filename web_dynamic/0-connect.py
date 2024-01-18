@@ -13,11 +13,12 @@ from flask import Flask, render_template, request, session
 from flask_bcrypt import Bcrypt
 from models.user import User
 from jinja2 import Environment, select_autoescape
-from datetime import datetime
+from datetime import datetime, timedelta
 from models.library import Library
 from models.reaction import Reaction
 from models.engine import db_storage
 import requests
+import pytz
 
 app = Flask(__name__)
 app.jinja_env.globals.update(datetime=datetime)
@@ -27,6 +28,53 @@ bcrypt = Bcrypt(app)
 
 # app.jinja_env.trim_blocks = True
 # app.jinja_env.lstrip_blocks = True
+
+def Subscribers_count(user_id):
+    user = storage.get(User, user_id)
+    # Create a list of subscriber IDs
+    subscriber_ids = [subscriber.id for subscriber in user.subscribers]
+    # Return the count of subscribers
+    return len(subscriber_ids)
+
+
+app.jinja_env.globals.update(Subscribers_count=Subscribers_count)
+
+
+def format_time_diff(created_at, now):
+    # Ensure both times are in the same timezone
+    now = now.replace(tzinfo=pytz.UTC)
+    created_at = created_at.replace(tzinfo=pytz.UTC)
+
+    time_diff = now - created_at
+
+    # Subtract 1 hour from the time difference
+    time_diff -= timedelta(hours=1)
+
+    if time_diff.total_seconds() < 60:
+        return "Now"
+    elif time_diff.total_seconds() < 3600:
+        minutes = int(time_diff.total_seconds() / 60)
+        return f"{minutes} minute ago" if minutes == 1 else f"{minutes} minutes ago"
+    elif time_diff.total_seconds() < 86400:
+        hours = int(time_diff.total_seconds() / 3600)
+        return f"{hours} hour ago" if hours == 1 else f"{hours} hours ago"
+    elif time_diff.total_seconds() < 172800:
+        return "Yesterday"
+    elif time_diff.total_seconds() < 604800:
+        days = int(time_diff.total_seconds() / 86400)
+        return f"{days} day ago" if days == 1 else f"{days} days ago"
+    elif time_diff.total_seconds() < 2419200:
+        weeks = int(time_diff.total_seconds() / 604800)
+        return f"{weeks} week ago" if weeks == 1 else f"{weeks} weeks ago"
+    elif time_diff.total_seconds() < 29030400:
+        months = int(time_diff.total_seconds() / 2419200)
+        return f"{months} month ago" if months == 1 else f"{months} months ago"
+    else:
+        years = int(time_diff.total_seconds() / 29030400)
+        return f"{years} year ago" if years == 1 else f"{years} years ago"
+
+
+app.jinja_env.filters['format_time_diff'] = format_time_diff
 
 
 @app.teardown_appcontext
@@ -247,6 +295,12 @@ def play(content_id, user_id):
     """ play page """
     content = storage.get(Content, content_id)
     user = storage.get(User, user_id)
+
+    # Create lists of subscribed user IDs and subscriber IDs
+    subscribed_ids = [
+        subscribed_user.id for subscribed_user in user.subscribed]
+    subscriber_ids = [subscriber.id for subscriber in user.subscribers]
+
     users = storage.all(User).values()
     contents = storage.all(Content).values()
     views = storage.all(View).values()
@@ -266,7 +320,7 @@ def play(content_id, user_id):
         elif reaction.reaction == 'dislike':
             dislikes_counts[reaction.content_id] = dislikes_counts.get(
                 reaction.content_id, 0) + 1
-    return render_template('play-video.html', content=content, users=users, contents=contents, locations=locations, likes_counts=likes_counts, dislikes_counts=dislikes_counts, user=user, views=views, now=now)
+    return render_template('play-video.html', content=content, users=users, contents=contents, locations=locations, likes_counts=likes_counts, dislikes_counts=dislikes_counts, user=user, views=views, now=now, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids)
 
 
 @app.route('/vid-chat/', strict_slashes=False)
