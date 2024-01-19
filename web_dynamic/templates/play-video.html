@@ -111,12 +111,12 @@
           <hr />
           <div class="publisher">
             {% for user in users%} {% if user.id == content.user_id%}
-            <img src="{{ user.image }}" />
+            <img src="{{ remove_dot(user.image) }}" />
             <div>
               <p>{{ user.username }}</p>
               {% endif %} {% endfor %} {% set count =
               Subscribers_count(content.user_id) %}
-              <span
+              <span id="sub_count"
                 >{{ count }} {{ 'Subscriber' if count == 1 else 'Subscribers'
                 }}</span
               >
@@ -133,46 +133,43 @@
 
           <div class="vid-description">
             <p>{{ content.description }}</p>
-            {% for user in users%} {% if user.id == content.user_id%}
+
             <p>Subscribe here to watch more</p>
             <hr />
-            <h4>134 Comments</h4>
+            <h4 id="comment_count">{{ num_of_comment }} Comments</h4>
+
             <div class="add-comment">
-              <img src="{{ user.image }}" />
-              <input type="text" placeholder="Write comments..." />
-              {% endif %} {% endfor %}
-            </div>
-            <div class="old-comment">
-              <img src="/static/images/Jack.png" />
-
-              <div>
-                <h3>Jack Nicholas <span>2 days ago</span></h3>
-                <p>thsgssh hgugldiuga ;iuagduogaug kuaduocga. kgi</p>
-                <div class="acomment-action">
-                  <img src="/static/images/like.png" />
-                  <span>244</span>
-                  <img src="/static/images/dislike.png" />
-                  <span>2</span>
-                  <span>REPLY</span>
-                  <a href="">ALL replies</a>
-                </div>
-              </div>
+              <img src="{{ remove_dot(user.image) }}" />
+              <input
+                id="commentInput"
+                type="text"
+                placeholder="Write comments..."
+                onkeydown="handleEnter(event, '{{ user.id }}', '{{ content.id }}')"
+              />
             </div>
 
-            <div class="old-comment">
-              <img src="/static/images/Jack.png" />
-              <div>
-                <h3>Jack Nicholas <span>2 days ago</span></h3>
-                <p>thsgssh hgugldiuga ;iuagduogaug kuaduocga. kgi</p>
-                <div class="acomment-action">
-                  <img src="images/like.png" />
-                  <span>244</span>
-                  <img src="images/dislike.png" />
-                  <span>2</span>
-                  <span>REPLY</span>
-                  <a href="">ALL replies</a>
+            <div id="commentsSection">
+              {% if comments is not none %} {% for comment in comments %} {% for
+              user in users %} {% if comment.user_id == user.id %}
+              <div class="old-comment">
+                <img src="{{ remove_dot(user.image) }}" />
+                <div>
+                  <h3>
+                    {{ user.first_name }} {{ user.last_name }}
+                    <span>{{ comment.created_at|format_time_diff(now) }}</span>
+                  </h3>
+                  <p>{{ comment.text }}</p>
+                  <div class="acomment-action">
+                    <img src="/static/images/like.png" />
+                    <span>244</span>
+                    <img src="/static/images/dislike.png" />
+                    <span>2</span>
+                    <span>REPLY</span>
+                    <a href="">ALL replies</a>
+                  </div>
                 </div>
               </div>
+              {% endif %} {% endfor %} {% endfor %} {%endif%}
             </div>
           </div>
         </div>
@@ -182,7 +179,7 @@
             <a href="play/{{ content.id }}">
               <video
                 autoplay
-                src="{{ content.content }}"
+                src="{{ remove_dot(content.content) }}"
                 class="small-thumbnail"
               ></video>
             </a>

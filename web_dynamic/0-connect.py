@@ -40,6 +40,16 @@ def Subscribers_count(user_id):
 app.jinja_env.globals.update(Subscribers_count=Subscribers_count)
 
 
+def remove_dot(content):
+    if content.startswith(".."):
+        return content[2:]
+    else:
+        return content
+
+
+app.jinja_env.globals.update(remove_dot=remove_dot)
+
+
 def format_time_diff(created_at, now):
     # Ensure both times are in the same timezone
     now = now.replace(tzinfo=pytz.UTC)
@@ -303,6 +313,12 @@ def play(content_id, user_id):
 
     users = storage.all(User).values()
     contents = storage.all(Content).values()
+    comments = storage.get_comments(Content, content_id)
+    if comments is None:
+        num_of_comment = 0
+    else:
+        num_of_comment = len(comments)
+
     views = storage.all(View).values()
     locations = storage.all(Location).values()
     all_reactions = storage.all(Reaction).values()
@@ -320,7 +336,7 @@ def play(content_id, user_id):
         elif reaction.reaction == 'dislike':
             dislikes_counts[reaction.content_id] = dislikes_counts.get(
                 reaction.content_id, 0) + 1
-    return render_template('play-video.html', content=content, users=users, contents=contents, locations=locations, likes_counts=likes_counts, dislikes_counts=dislikes_counts, user=user, views=views, now=now, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids)
+    return render_template('play-video.html', content=content, users=users, contents=contents, locations=locations, likes_counts=likes_counts, dislikes_counts=dislikes_counts, user=user, views=views, now=now, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids, comments=comments, num_of_comment=num_of_comment)
 
 
 @app.route('/vid-chat/', strict_slashes=False)

@@ -127,22 +127,162 @@ function Subscription(user_id, content_user_id) {
     subscribed_id: content_user_id,
   };
 
-  fetch(
-    `http://127.0.0.1:5001/api/v1/users/${user_id}/subscribe/${content_user_id}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    }
-  )
+  // Check the current subscription status
+  let isSubscribed =
+    document.getElementById("sub_button").textContent.trim() === "Unsubscribe";
+
+  // Define the API endpoint based on the subscription status
+  let apiEndpoint = isSubscribed
+    ? `http://127.0.0.1:5001/api/v1/users/${user_id}/unsubscribe/${content_user_id}`
+    : `http://127.0.0.1:5001/api/v1/users/${user_id}/subscribe/${content_user_id}`;
+
+  fetch(apiEndpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
-      document.getElementById("sub_button").textContent = "Unsubscribe";
+      // Update the button text based on the new subscription status
+      document.getElementById("sub_button").textContent = isSubscribed
+        ? "Subscribe"
+        : "Unsubscribe";
+      fetch(`http://127.0.0.1:5001/api/v1/users/${content_user_id}`)
+        .then((response) => response.json())
+        .then((data) => {
+          var len = data.subscribers.length;
+          var subscriberText = len === 1 ? "Subscriber" : "Subscribers";
+          document.getElementById(
+            "sub_count"
+          ).textContent = `${len} ${subscriberText}`;
+        });
     })
     .catch((error) => {
       console.error("Error:", error);
     });
+}
+function handleEnter(event, user_id, content_id) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    let comment = document.getElementById("commentInput").value;
+
+    // Define the data to be sent in the body of the request
+    let data = {
+      user_id: user_id,
+      content_id: content_id,
+      text: comment,
+    };
+
+    fetch(
+      `http://127.0.0.1:5001/api/v1/contents/${user_id}/${content_id}/comment`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        // Clear the input field after successful submission
+        document.getElementById("commentInput").value = "";
+        fetch(`http://127.0.0.1:5001/api/v1/contents/${content_id}/comment`)
+          .then((response) => response.json())
+          .then((comments) => {
+            // Update the comment count
+            document.getElementById(
+              "comment_count"
+            ).textContent = `${comments.length} Comments`;
+
+            fetch("http://127.0.0.1:5001/api/v1/users")
+              .then((response) => response.json())
+              .then((users) => {
+                // Create the HTML for each comment
+                let commentsHTML = "";
+                for (let comment of comments) {
+                  // Find the user who made the comment
+                  let user = users.find((user) => user.id === comment.user_id);
+                  if (user) {
+                    commentsHTML += `
+                        <div class="old-comment">
+                            <img src="${remove_dot(user.image)}" />
+                            <div>
+                                <h3>
+                                    ${user.first_name} ${user.last_name}
+                                    <span>${format_time_diff(
+                                      comment.created_at
+                                    )}</span>
+                                </h3>
+                                <p>${comment.text}</p>
+                                <div class="acomment-action">
+                                    <img src="/static/images/like.png" />
+                                    <span>244</span>
+                                    <img src="/static/images/dislike.png" />
+                                    <span>2</span>
+                                    <span>REPLY</span>
+                                    <a href="">ALL replies</a>
+                                </div>
+                            </div>
+                        </div>`;
+                  }
+                }
+
+                // Replace the existing comments section with the new HTML
+                document.getElementById("commentsSection").innerHTML =
+                  commentsHTML;
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+              });
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      });
+  }
+}
+
+function remove_dot(content) {
+  if (content.startsWith("..")) {
+    return content.slice(2);
+  } else {
+    return content;
+  }
+}
+function format_time_diff(created_at) {
+  let now = new Date();
+  let ncreated_at = new Date(created_at);
+  // Calculate the time difference in seconds
+  let time_diff = Math.floor((now - ncreated_at) / 1000);
+
+  // Subtract 1 hour from the time difference
+  time_diff -= 3600;
+
+  if (time_diff < 60) {
+    return "Now";
+  } else if (time_diff < 3600) {
+    let minutes = Math.floor(time_diff / 60);
+    return minutes === 1 ? `${minutes} minute ago` : `${minutes} minutes ago`;
+  } else if (time_diff < 86400) {
+    let hours = Math.floor(time_diff / 3600);
+    return hours === 1 ? `${hours} hour ago` : `${hours} hours ago`;
+  } else if (time_diff < 172800) {
+    return "Yesterday";
+  } else if (time_diff < 604800) {
+    let days = Math.floor(time_diff / 86400);
+    return days === 1 ? `${days} day ago` : `${days} days ago`;
+  } else if (time_diff < 2419200) {
+    let weeks = Math.floor(time_diff / 604800);
+    return weeks === 1 ? `${weeks} week ago` : `${weeks} weeks ago`;
+  } else if (time_diff < 29030400) {
+    let months = Math.floor(time_diff / 2419200);
+    return months === 1 ? `${months} month ago` : `${months} months ago`;
+  } else {
+    let years = Math.floor(time_diff / 29030400);
+    return years === 1 ? `${years} year ago` : `${years} years ago`;
+  }
 }

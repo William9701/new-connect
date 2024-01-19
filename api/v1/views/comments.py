@@ -8,22 +8,18 @@ from flask import abort, jsonify, make_response, request
 from flasgger.utils import swag_from
 
 
-@app_views.route('/contents/<content_id>/comment', methods=['GET'],
-                 strict_slashes=False)
+@app_views.route('/contents/<content_id>/comment', methods=['GET'], strict_slashes=False)
 @swag_from('documentation/comment/comment_by_content.yml', methods=['GET'])
 def get_comments(content_id):
     """
     Retrieves the list of all comment objects
     of a specific content, or a specific comment
     """
-    list_comment = []
-    content = storage.get(Content, content_id)
-    if not content:
-        abort(404)
-    for comment in content.comments:
-        list_comment.append(comment.to_dict())
+    comments = storage.get_comments(Content, content_id)
+    if comments is None:
+        comments = []
+    return jsonify([comment.to_dict() for comment in comments])
 
-    return jsonify(list_comment)
 
 
 @app_views.route('/comment/<comment_id>/', methods=['GET'], strict_slashes=False)
@@ -54,10 +50,10 @@ def delete_comment(comment_id):
     return make_response(jsonify({}), 200)
 
 
-@app_views.route('/contents/<content_id>/comment', methods=['POST'],
+@app_views.route('/contents/<user_id>/<content_id>/comment', methods=['POST'],
                  strict_slashes=False)
 @swag_from('documentation/comment/post_comment.yml', methods=['POST'])
-def post_comment(content_id):
+def post_comment(content_id, user_id):
     """
     Creates a comment
     """
@@ -72,7 +68,6 @@ def post_comment(content_id):
 
     data = request.get_json()
     instance = Comment(**data)
-    instance.content_id = content.id
     instance.save()
     return make_response(jsonify(instance.to_dict()), 201)
 

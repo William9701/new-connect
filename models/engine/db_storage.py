@@ -156,3 +156,17 @@ class DBStorage:
             if view.user_id == user_id and view.content_id == content_id:
                 return True  # return the Reaction object
         return False
+
+
+    def get_comments(self, cls, content_id):
+        if cls not in classes.values():
+            return None
+        all_comments = models.storage.all(Comment).values()
+
+        content_list = []
+
+        for comment in all_comments:
+            if comment.content_id == content_id:
+                content_list.append(comment)
+
+        return content_list if content_list else None
