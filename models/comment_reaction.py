@@ -6,13 +6,13 @@ from sqlalchemy import Column, Enum, String, ForeignKey, Integer, UniqueConstrai
 import models
 from sqlalchemy.orm import relationship
 
-class Reaction(Basemodels, Base):
-    __tablename__ = 'reactions'
+class CommentReaction(Basemodels, Base):
+    __tablename__ = 'comment_reactions'
     if models.storage_t == "db":
         user_id = Column(String(60), ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
-        content_id = Column(String(60), ForeignKey('contents.id', ondelete='CASCADE'), nullable=False)
+        comment_id = Column(String(60), ForeignKey('comments.id', ondelete='CASCADE'), nullable=False)
         reaction = Column(Enum('like', 'dislike'), nullable=False)
-        __table_args__ = (UniqueConstraint('user_id', 'content_id', name='user_content_reaction'),)
+        __table_args__ = (UniqueConstraint('user_id', 'comment_id', name='user_comment_reaction'),)
     else:
         user_id = ""
         content_id = ""

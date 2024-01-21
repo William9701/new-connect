@@ -17,6 +17,7 @@ from datetime import datetime, timedelta
 from models.library import Library
 from models.reaction import Reaction
 from models.engine import db_storage
+from models.comment_reaction import CommentReaction
 import requests
 import pytz
 
@@ -318,25 +319,39 @@ def play(content_id, user_id):
         num_of_comment = 0
     else:
         num_of_comment = len(comments)
+        comments.sort(key=lambda x: x.created_at, reverse=True)
 
     views = storage.all(View).values()
     locations = storage.all(Location).values()
     all_reactions = storage.all(Reaction).values()
+    comment_reactions = storage.all(CommentReaction).values()
     now = datetime.now()
 
     # Initialize counts
     likes_counts = {}
+    com_likes_counts = {}
     dislikes_counts = {}
+    com_dislikes_counts = {}
+
+    for c_reaction in comment_reactions:
+        if c_reaction.reaction == 'like':
+            com_likes_counts[c_reaction.comment_id] = com_likes_counts.get(
+                c_reaction.comment_id, 0) + 1
+        elif c_reaction.reaction == 'dislike':
+            com_dislikes_counts[c_reaction.comment_id] = com_dislikes_counts.get(
+                c_reaction.comment_id, 0) + 1
 
     # Count likes and dislikes for each content
     for reaction in all_reactions:
         if reaction.reaction == 'like':
             likes_counts[reaction.content_id] = likes_counts.get(
                 reaction.content_id, 0) + 1
+
         elif reaction.reaction == 'dislike':
             dislikes_counts[reaction.content_id] = dislikes_counts.get(
                 reaction.content_id, 0) + 1
-    return render_template('play-video.html', content=content, users=users, contents=contents, locations=locations, likes_counts=likes_counts, dislikes_counts=dislikes_counts, user=user, views=views, now=now, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids, comments=comments, num_of_comment=num_of_comment)
+
+    return render_template('play-video.html', content=content, users=users, contents=contents, locations=locations, likes_counts=likes_counts, dislikes_counts=dislikes_counts, user=user, views=views, now=now, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids, comments=comments, num_of_comment=num_of_comment, com_dislikes_counts=com_dislikes_counts, com_likes_counts=com_likes_counts)
 
 
 @app.route('/vid-chat/', strict_slashes=False)

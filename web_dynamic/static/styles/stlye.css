@@ -594,6 +594,15 @@ nav{
 	padding-top: 10px;
 	background: transparent;
 }
+.comment_block{
+	border: 0;
+	display: none;
+	outline: 0;
+	border-bottom: 1px solid #ccc;
+	width: 100%;
+	padding-top: 10px;
+	background: transparent;
+}
 .old-comment{
 	display: flex;
 	align-items: center;

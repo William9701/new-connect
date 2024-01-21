@@ -121,6 +121,17 @@
                 }}</span
               >
             </div>
+            {% if user.id == content.user_id %}
+            <button
+              id="sub_button"
+              onclick="Subscription('{{ user.id }}', '{{ content.user_id }}')"
+              type="button"
+              style="display: none"
+            >
+              {% if content.user_id in subscribed_ids %} Unsubscribe {% else %}
+              Subscribe {% endif %}
+            </button>
+            {% else %}
             <button
               id="sub_button"
               onclick="Subscription('{{ user.id }}', '{{ content.user_id }}')"
@@ -129,6 +140,7 @@
               {% if content.user_id in subscribed_ids %} Unsubscribe {% else %}
               Subscribe {% endif %}
             </button>
+            {% endif %}
           </div>
 
           <div class="vid-description">
@@ -160,13 +172,38 @@
                   </h3>
                   <p>{{ comment.text }}</p>
                   <div class="acomment-action">
-                    <img src="/static/images/like.png" />
-                    <span>244</span>
-                    <img src="/static/images/dislike.png" />
-                    <span>2</span>
-                    <span>REPLY</span>
+                    <a
+                      href="#"
+                      onclick="com_like('{{ comment.id }}', '{{ user.id }}')"
+                    >
+                      <img src="/static/images/like.png" />
+                      <span id="comment_like_{{ comment.id }}"
+                        >{{ com_likes_counts.get(comment.id, 0) }}</span
+                      >
+                    </a>
+
+                    <a
+                      href="#"
+                      onclick="com_dislike('{{ comment.id }}', '{{ user.id }}')"
+                    >
+                      <img src="/static/images/dislike.png" />
+                      <span id="comment_dislike_{{ comment.id }}"
+                        >{{ com_dislikes_counts.get(comment.id, 0) }}</span
+                      >
+                    </a>
+
+                    <a href="" onclick="Reply('{{ comment.id }}', '{{ user.id }}')"
+                      ><span>REPLY</span></a
+                    >
                     <a href="">ALL replies</a>
                   </div>
+                  <input
+                    class="comment_block"
+                    id="comment-comment_{{ comment.id }}"
+                    type="text"
+                    placeholder="Reply"
+                    style="display: none"
+                  />
                 </div>
               </div>
               {% endif %} {% endfor %} {% endfor %} {%endif%}

@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 from models.view import View
 
 from models.wrapped_session import Wrapped_Session
+from models.comment_reaction import CommentReaction
 
 load_dotenv()
 
@@ -26,7 +27,8 @@ classes = {"Comment": Comment,
            "History": History,
            "Wrapped_session": Wrapped_Session,
            "Reaction": Reaction,
-           "View": View
+           "View": View,
+           "CommentReaction": CommentReaction
            }
 
 
@@ -120,8 +122,6 @@ class DBStorage:
 
         return list
 
-    
-
     def count(self, cls=None):
         """
         count the number of objects in storage
@@ -136,17 +136,27 @@ class DBStorage:
             count = len(models.storage.all(cls).values())
 
         return count
-    
+
     def get_reaction(self, cls, user_id, content_id):
         if cls not in classes.values():
             return None
-        all_reactions = models.storage.all(Reaction).values()
+        all_reactions = models.storage.all(cls).values()
 
         for reaction in all_reactions:
             if reaction.user_id == user_id and reaction.content_id == content_id:
                 return reaction  # return the Reaction object
         return None
     
+    def get_comment_reaction(self, cls, user_id, comment_id):
+        if cls not in classes.values():
+            return None
+        all_reactions = models.storage.all(cls).values()
+
+        for reaction in all_reactions:
+            if reaction.user_id == user_id and reaction.comment_id == comment_id:
+                return reaction  # return the Reaction object
+        return None
+
     def get_view(self, cls, user_id, content_id):
         if cls not in classes.values():
             return None
@@ -156,7 +166,6 @@ class DBStorage:
             if view.user_id == user_id and view.content_id == content_id:
                 return True  # return the Reaction object
         return False
-
 
     def get_comments(self, cls, content_id):
         if cls not in classes.values():

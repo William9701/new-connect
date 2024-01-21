@@ -1,4 +1,5 @@
 import json
+from models.comment_reaction import CommentReaction
 
 from models.library import Library
 from models.reaction import Reaction
@@ -59,8 +60,10 @@ class Filestorage:
                    "History": History,
                    "Wrapped_session": Wrapped_Session,
                    "Reaction": Reaction,
-                   "View": View
+                   "View": View,
+                   "CommentReaction": CommentReaction
                    }
+
         try:
             with open(self.__file_path, 'r') as f:
                 jo = json.load(f)
@@ -98,8 +101,10 @@ class Filestorage:
                    "History": History,
                    "Wrapped_session": Wrapped_Session,
                    "Reaction": Reaction,
-                   "View": View
+                   "View": View,
+                   "CommentReaction": CommentReaction
                    }
+
         if cls not in classes.values():
             return None
 
@@ -131,8 +136,10 @@ class Filestorage:
                    "History": History,
                    "Wrapped_session": Wrapped_Session,
                    "Reaction": Reaction,
-                   "View": View
+                   "View": View,
+                   "CommentReaction": CommentReaction
                    }
+
         all_class = classes.values()
 
         if not cls:

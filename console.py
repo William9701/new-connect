@@ -4,6 +4,7 @@ import models
 import shlex
 from models.base_models import Basemodels
 from models.comment import Comment
+from models.comment_reaction import CommentReaction
 from models.content import Content
 from models.history import History
 from models.location import Location
@@ -21,7 +22,8 @@ classes = {"Comment": Comment,
            "History": History,
            "Wrapped_session": Wrapped_Session,
            "Reaction": Reaction,
-           "View": View
+           "View": View,
+           "CommentReaction": CommentReaction
            }
 
 

@@ -201,6 +201,10 @@ function handleEnter(event, user_id, content_id) {
             fetch("http://127.0.0.1:5001/api/v1/users")
               .then((response) => response.json())
               .then((users) => {
+                // Sort the comments by 'created_at' in descending order
+                comments.sort(
+                  (a, b) => new Date(b.created_at) - new Date(a.created_at)
+                );
                 // Create the HTML for each comment
                 let commentsHTML = "";
                 for (let comment of comments) {
@@ -284,5 +288,67 @@ function format_time_diff(created_at) {
   } else {
     let years = Math.floor(time_diff / 29030400);
     return years === 1 ? `${years} year ago` : `${years} years ago`;
+  }
+}
+function com_like(comment_id, user_id) {
+  event.preventDefault();
+  var data = {
+    user_id: user_id,
+    comment_id: comment_id,
+    reaction: "like",
+  };
+  fetch("http://127.0.0.1:5001/api/v1/comment_reaction/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  }).then(() => {
+    fetch(`http://127.0.0.1:5001/api/v1/comments_reaction/${comment_id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        // Dynamically generate the id for each comment's like count
+        var likeCountId = `comment_like_${comment_id}`;
+        var dislikeCountId = `comment_dislike_${comment_id}`;
+        document.getElementById(likeCountId).textContent = data.likes;
+        document.getElementById(dislikeCountId).textContent = data.dislikes;
+      });
+  });
+}
+
+function com_dislike(comment_id, user_id) {
+  event.preventDefault();
+  var data = {
+    user_id: user_id,
+    comment_id: comment_id,
+    reaction: "dislike",
+  };
+  fetch("http://127.0.0.1:5001/api/v1/comment_reaction/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  }).then(() => {
+    fetch(`http://127.0.0.1:5001/api/v1/comments_reaction/${comment_id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        // Dynamically generate the id for each comment's like count
+        var dislikeCountId = `comment_dislike_${comment_id}`;
+        var likeCountId = `comment_like_${comment_id}`;
+        document.getElementById(dislikeCountId).textContent = data.dislikes;
+        document.getElementById(likeCountId).textContent = data.likes;
+      });
+  });
+}
+
+function Reply(comment_id, user_id) {
+  event.preventDefault();
+  var element = document.getElementById(`comment-comment_${comment_id}`);
+
+  if (element.style.display === "none") {
+    element.style.display = "block";
+  } else {
+    element.style.display = "none";
   }
 }
