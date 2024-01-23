@@ -3,6 +3,8 @@ from flask import request, jsonify
 import os
 import uuid
 from flask import flash, abort, redirect, url_for
+from models.comment import Comment
+from models.reply_comment import ReplyComment
 from models.view import View
 
 from models import storage
@@ -320,6 +322,7 @@ def play(content_id, user_id):
     else:
         num_of_comment = len(comments)
         comments.sort(key=lambda x: x.created_at, reverse=True)
+
 
     views = storage.all(View).values()
     locations = storage.all(Location).values()

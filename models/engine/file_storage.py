@@ -3,6 +3,7 @@ from models.comment_reaction import CommentReaction
 
 from models.library import Library
 from models.reaction import Reaction
+from models.reply_comment import ReplyComment
 from models.view import View
 
 
@@ -61,7 +62,8 @@ class Filestorage:
                    "Wrapped_session": Wrapped_Session,
                    "Reaction": Reaction,
                    "View": View,
-                   "CommentReaction": CommentReaction
+                   "CommentReaction": CommentReaction,
+                   "ReplyComment": ReplyComment
                    }
 
         try:
@@ -102,7 +104,8 @@ class Filestorage:
                    "Wrapped_session": Wrapped_Session,
                    "Reaction": Reaction,
                    "View": View,
-                   "CommentReaction": CommentReaction
+                   "CommentReaction": CommentReaction,
+                   "ReplyComment": ReplyComment
                    }
 
         if cls not in classes.values():
@@ -137,7 +140,8 @@ class Filestorage:
                    "Wrapped_session": Wrapped_Session,
                    "Reaction": Reaction,
                    "View": View,
-                   "CommentReaction": CommentReaction
+                   "CommentReaction": CommentReaction,
+                   "ReplyComment": ReplyComment
                    }
 
         all_class = classes.values()

@@ -13,3 +13,4 @@ from api.v1.views.histories import *
 from api.v1.views.reactions import *
 from api.v1.views.views import *
 from api.v1.views.comment_reactions import *
+from api.v1.views.reply_comments import *

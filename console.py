@@ -9,6 +9,7 @@ from models.content import Content
 from models.history import History
 from models.location import Location
 from models.reaction import Reaction
+from models.reply_comment import ReplyComment
 from models.user import User
 from models.view import View
 from models.wrapped_session import Wrapped_Session
@@ -23,7 +24,8 @@ classes = {"Comment": Comment,
            "Wrapped_session": Wrapped_Session,
            "Reaction": Reaction,
            "View": View,
-           "CommentReaction": CommentReaction
+           "CommentReaction": CommentReaction,
+           "ReplyComment": ReplyComment
            }
 
 
@@ -169,7 +171,6 @@ class HBNBCommand(cmd.Cmd):
                 print("** instance id missing **")
         else:
             print("** class doesn't exist **")
-
 
 if __name__ == '__main__':
     HBNBCommand().cmdloop()

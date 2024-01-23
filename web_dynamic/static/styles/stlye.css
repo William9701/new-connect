@@ -603,6 +603,24 @@ nav{
 	padding-top: 10px;
 	background: transparent;
 }
+#comment_image{
+	position: absolute;
+	margin-top: -20px;
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+
+}
+#Reply_comment_image{
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+.Reply_comment_block{
+	display: flex;
+    align-items: center;
+    margin: 20px 0;
+}
 .old-comment{
 	display: flex;
 	align-items: center;

@@ -5,17 +5,15 @@ from sqlalchemy import Column, String, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
 
-class Comment(Basemodels, Base):
-    __tablename__ = 'comments'
+class ReplyComment(Basemodels, Base):
+    __tablename__ = 'reply_comments'
     if models.storage_t == "db":
         user_id = Column(String(60), ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
-        content_id = Column(String(60), ForeignKey('contents.id'), nullable=False)
-        text = Column(String(1024), nullable=True)
-        wrapped_session_id = Column(String(60), ForeignKey('wrapped_sessions.id'), nullable=True)
+        comment_id = Column(String(60), ForeignKey('comments.id'), nullable=False)
+        text = Column(String(1024), nullable=False)
     else:
         user_id = ""
-        number_of_likes = 0
-        reply = ""
+        comment_id = ''
         text = ""
 
     def __init__(self, *args, **kwargs):

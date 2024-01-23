@@ -16,6 +16,7 @@ from models.view import View
 
 from models.wrapped_session import Wrapped_Session
 from models.comment_reaction import CommentReaction
+from models.reply_comment import ReplyComment
 
 load_dotenv()
 
@@ -28,7 +29,8 @@ classes = {"Comment": Comment,
            "Wrapped_session": Wrapped_Session,
            "Reaction": Reaction,
            "View": View,
-           "CommentReaction": CommentReaction
+           "CommentReaction": CommentReaction,
+           "ReplyComment": ReplyComment
            }
 
 
@@ -179,3 +181,16 @@ class DBStorage:
                 content_list.append(comment)
 
         return content_list if content_list else None
+    
+    def get_replyComments(self, cls, comment_id):
+        if cls not in classes.values():
+            return None
+        all_comments = models.storage.all(cls).values()
+
+        comment_list = []
+
+        for comment in all_comments:
+            if comment.comment_id == comment_id:
+                comment_list.append(comment)
+
+        return comment_list if comment_list else None

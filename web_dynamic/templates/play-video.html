@@ -164,8 +164,8 @@
               {% if comments is not none %} {% for comment in comments %} {% for
               user in users %} {% if comment.user_id == user.id %}
               <div class="old-comment">
-                <img src="{{ remove_dot(user.image) }}" />
-                <div>
+                <img id="comment_image" src="{{ remove_dot(user.image) }}" />
+                <div style="margin-left: 50px">
                   <h3>
                     {{ user.first_name }} {{ user.last_name }}
                     <span>{{ comment.created_at|format_time_diff(now) }}</span>
@@ -192,7 +192,9 @@
                       >
                     </a>
 
-                    <a href="" onclick="Reply('{{ comment.id }}', '{{ user.id }}')"
+                    <a
+                      href=""
+                      onclick="Reply('{{ comment.id }}', '{{ user.id }}')"
                       ><span>REPLY</span></a
                     >
                     <a href="">ALL replies</a>
@@ -203,7 +205,49 @@
                     type="text"
                     placeholder="Reply"
                     style="display: none"
+                    onkeydown="ReplyhandleEnter(event, '{{ user.id }}', '{{ comment.id }}')"
                   />
+
+                  <!-- this is the Reply_comment section -->
+
+                  <div class="Reply_comment_block" style="display: none">
+                    <img
+                      id="Reply_comment_image"
+                      src="{{ remove_dot(user.image) }}"
+                    />
+                    <div>
+                      <h3>
+                        {{ user.first_name }} {{ user.last_name }}
+                        <span
+                          >{{ comment.created_at|format_time_diff(now) }}</span
+                        >
+                      </h3>
+                      <p>{{ comment.text }}</p>
+                      <div class="acomment-action">
+                        <a
+                          href="#"
+                          onclick="com_like('{{ comment.id }}', '{{ user.id }}')"
+                        >
+                          <img src="/static/images/like.png" />
+                          <span id="comment_like_{{ comment.id }}"
+                            >{{ com_likes_counts.get(comment.id, 0) }}</span
+                          >
+                        </a>
+
+                        <a
+                          href="#"
+                          onclick="com_dislike('{{ comment.id }}', '{{ user.id }}')"
+                        >
+                          <img src="/static/images/dislike.png" />
+                          <span id="comment_dislike_{{ comment.id }}"
+                            >{{ com_dislikes_counts.get(comment.id, 0) }}</span
+                          >
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- comment-comment ends here -->
                 </div>
               </div>
               {% endif %} {% endfor %} {% endfor %} {%endif%}

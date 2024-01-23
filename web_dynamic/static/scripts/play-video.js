@@ -163,6 +163,40 @@ function Subscription(user_id, content_user_id) {
       console.error("Error:", error);
     });
 }
+
+function ReplyhandleEnter(event, user_id, comment_id) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    let comment = document.getElementById(
+      `comment-comment_${comment_id}`
+    ).value;
+
+    // Define the data to be sent in the body of the request
+    let data = {
+      user_id: user_id,
+      comment_id: comment_id,
+      text: comment,
+    };
+
+    fetch(
+      `http://127.0.0.1:5001/api/v1/comments/${user_id}/${comment_id}/replyComment`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        // Clear the input field after successful submission
+        document.getElementById(`comment-comment_${comment_id}`).value = "";
+      });
+  }
+}
+
 function handleEnter(event, user_id, content_id) {
   if (event.key === "Enter") {
     event.preventDefault();
