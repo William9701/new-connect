@@ -162,12 +162,12 @@
 
             <div id="commentsSection">
               {% if comments is not none %} {% for comment in comments %} {% for
-              user in users %} {% if comment.user_id == user.id %}
+              muser in users %} {% if comment.user_id == muser.id %}
               <div class="old-comment">
-                <img id="comment_image" src="{{ remove_dot(user.image) }}" />
+                <img id="comment_image" src="{{ remove_dot(muser.image) }}" />
                 <div style="margin-left: 50px">
                   <h3>
-                    {{ user.first_name }} {{ user.last_name }}
+                    {{ muser.first_name }} {{ muser.last_name }}
                     <span>{{ comment.created_at|format_time_diff(now) }}</span>
                   </h3>
                   <p>{{ comment.text }}</p>
@@ -192,12 +192,31 @@
                       >
                     </a>
 
+                    {%if comment.user_id == user.id%}
+                    <a
+                      href="#"
+                      onclick="deleteComment('{{ user.id }}', '{{ content.id }}', event,'{{comment.id}}',)"
+                    >
+                      <img
+                        id=""
+                        class="delete"
+                        style="width: 17px; margin-right: 10px"
+                        src="/static/images/trash.png"
+                        alt=""
+                      />
+                    </a>
+                    {%endif%}
+
                     <a
                       href=""
                       onclick="Reply('{{ comment.id }}', '{{ user.id }}')"
                       ><span>REPLY</span></a
                     >
-                    <a href="">ALL replies</a>
+                    <a
+                      href=""
+                      onclick="allReplies('{{ comment.id }}', '{{ user.id }}')"
+                      >ALL replies</a
+                    >
                   </div>
                   <input
                     class="comment_block"
@@ -210,41 +229,11 @@
 
                   <!-- this is the Reply_comment section -->
 
-                  <div class="Reply_comment_block" style="display: none">
-                    <img
-                      id="Reply_comment_image"
-                      src="{{ remove_dot(user.image) }}"
-                    />
-                    <div>
-                      <h3>
-                        {{ user.first_name }} {{ user.last_name }}
-                        <span
-                          >{{ comment.created_at|format_time_diff(now) }}</span
-                        >
-                      </h3>
-                      <p>{{ comment.text }}</p>
-                      <div class="acomment-action">
-                        <a
-                          href="#"
-                          onclick="com_like('{{ comment.id }}', '{{ user.id }}')"
-                        >
-                          <img src="/static/images/like.png" />
-                          <span id="comment_like_{{ comment.id }}"
-                            >{{ com_likes_counts.get(comment.id, 0) }}</span
-                          >
-                        </a>
-
-                        <a
-                          href="#"
-                          onclick="com_dislike('{{ comment.id }}', '{{ user.id }}')"
-                        >
-                          <img src="/static/images/dislike.png" />
-                          <span id="comment_dislike_{{ comment.id }}"
-                            >{{ com_dislikes_counts.get(comment.id, 0) }}</span
-                          >
-                        </a>
-                      </div>
-                    </div>
+                  <div
+                    id="Reply_comment_block_{{ comment.id }}"
+                    style="display: none; flex-direction: column"
+                  >
+                    <!-- Reply_comment_image -->
                   </div>
 
                   <!-- comment-comment ends here -->
@@ -271,7 +260,13 @@
               >
               {% endif %} {% endfor %}
               <p>{{ content.description }}</p>
-              <p>{{ content.number_of_views }} views</p>
+              {% set ns = namespace(view_count=0) %} {% for view in views %} {%
+              if content.id == view.content_id %} {% set ns.view_count =
+              ns.view_count + 1 %} {% endif %} {% endfor %}
+              <p>
+                {{ ns.view_count }} {{ 'view' if ns.view_count == 1 else 'views'
+                }}
+              </p>
             </div>
           </div>
           {% endif %} {% endfor %}

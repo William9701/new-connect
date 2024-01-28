@@ -9,7 +9,7 @@ class Comment(Basemodels, Base):
     __tablename__ = 'comments'
     if models.storage_t == "db":
         user_id = Column(String(60), ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
-        content_id = Column(String(60), ForeignKey('contents.id'), nullable=False)
+        content_id = Column(String(60), ForeignKey('contents.id', ondelete='CASCADE'), nullable=False)
         text = Column(String(1024), nullable=True)
         wrapped_session_id = Column(String(60), ForeignKey('wrapped_sessions.id'), nullable=True)
     else:
