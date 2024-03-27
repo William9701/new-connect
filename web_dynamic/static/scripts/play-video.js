@@ -55,31 +55,51 @@ function dislike(content_id, user_id) {
 
 function Save(content_id) {
   event.preventDefault();
-  // Fetch the video file details from the server
-  fetch(`http://127.0.0.1:5001/api/v1/contents/${content_id}`)
-    .then((response) => response.json())
-    .then((data) => {
-      var contentUrl = data.content; // Get the relative URL of the video file from the JSON data
 
-      // Remove the '..' from the relative URL
-      contentUrl = contentUrl.replace("..", "");
+  // Function to check if the output file is ready
+  function checkFileStatus() {
+    fetch(`http://127.0.0.1:5001/api/v1/contents/${content_id}`)
+      .then((response) => response.json())
+      .then((content) => {
+        const contentUrl = content.content.replace("..", "") + "_output.mp4";
 
-      // Convert the relative URL to an absolute URL
-      var a = document.createElement("a");
-      a.href = contentUrl;
-      var absoluteUrl = a.href;
+        // Check if the output file exists
+        fetch(contentUrl)
+          .then(() => {
+            // File exists, proceed with downloading
+            downloadFile(content);
+          })
+          .catch(() => {
+            // File doesn't exist, continue polling
+            setTimeout(checkFileStatus, 1000); // Poll every 1 second
+          });
+      });
+  }
 
-      // Fetch the video file
-      fetch(absoluteUrl)
-        .then((response) => response.blob()) // Get a Blob representing the video data
-        .then((blob) => {
-          var url = window.URL.createObjectURL(blob);
-          var a = document.createElement("a");
-          a.href = url;
-          a.download = `Connect_${data.description}.mp4`; // Specify the filename
-          a.click(); // Simulate the click
-        });
-    });
+  // Function to download the file
+  function downloadFile(content) {
+    const desc = content.description;
+    const contentUrl = content.content.replace("..", "") + "_output.mp4";
+
+    // Convert the relative URL to an absolute URL
+    const a = document.createElement("a");
+    a.href = contentUrl;
+    const absoluteUrl = a.href;
+
+    // Fetch the video file
+    fetch(absoluteUrl)
+      .then((response) => response.blob())
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Connect_${desc}.mp4`;
+        a.click();
+      });
+  }
+
+  // Start checking for file status
+  checkFileStatus();
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -657,3 +677,14 @@ async function deleteComment(user_id, content_id, event, comment_id) {
     console.log("Deletion cancelled");
   }
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  var menuicon = document.querySelector(".menu-icon");
+  var sidebar = document.querySelector(".sidebar");
+  var container = document.querySelector(".container");
+
+  menuicon.onclick = function () {
+    sidebar.classList.toggle("small-sidebar");
+    container.classList.toggle("large-container");
+  };
+});

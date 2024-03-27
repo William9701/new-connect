@@ -72,7 +72,15 @@ window.onload = function () {
                 );
 
                 // Pass the content description to the createContentTable function
-                createContentTable(userId, contentDescription);
+                createContentTable(userId, contentDescription).then(
+                  (content_id) => {
+                    const fetchPromise = fetch(`/prep_content/${content_id}`)
+                      .then((response) => response.json())
+                      .then((output) => {
+                        console.log(output);
+                      });
+                  }
+                );
 
                 // Go back to the previous page
                 setTimeout(function () {
@@ -178,7 +186,7 @@ window.onload = function () {
   }
 };
 
-function createContentTable(userid, contentDescription) {
+async function createContentTable(userid, contentDescription) {
   var data = {
     user_id: userid,
     content: "../static/vidFiles/videos/" + filename,
@@ -187,70 +195,67 @@ function createContentTable(userid, contentDescription) {
 
   console.log(data.description);
 
-  fetch("http://127.0.0.1:5001/api/v1/contents", {
+  const response = await fetch("http://127.0.0.1:5001/api/v1/contents", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Content sent to the server successfully", data);
-      var content_id = data.id;
-      fetch("https://ipapi.co/json/")
-        .then((response) => response.json())
-        .then((data) => {
-          var name = data.region;
-          var lat = data.latitude;
-          var long = data.longitude;
+  });
 
-          var location = {
-            user_id: userid,
-            content_id: content_id,
-            name: name,
-            latitude: lat,
-            longitude: long,
-          };
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
 
-          fetch("http://127.0.0.1:5001/api/v1/locations", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(location),
-          })
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error("Network response was not ok");
-              }
-              return response.json();
-            })
-            .then((data) => {
-              console.log("Content sent to the server successfully", data);
-              var location_id = data.id;
-              var fix = {
-                location_id: location_id,
-              };
-              fetch("http://127.0.0.1:5001/api/v1/contents/" + content_id, {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(fix),
-              });
-            });
-        });
-    })
-    .catch((error) => {
-      console.error(
-        "There has been a problem with your fetch operation:",
-        error
-      );
-    });
+  const responseData = await response.json();
+  console.log("Content sent to the server successfully", responseData);
+  var content_id = responseData.id;
+
+  const locationResponse = await fetch("https://ipapi.co/json/");
+  const locationData = await locationResponse.json();
+
+  var name = locationData.region;
+  var lat = locationData.latitude;
+  var long = locationData.longitude;
+
+  var location = {
+    user_id: userid,
+    content_id: content_id,
+    name: name,
+    latitude: lat,
+    longitude: long,
+  };
+
+  const locationPostResponse = await fetch(
+    "http://127.0.0.1:5001/api/v1/locations",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(location),
+    }
+  );
+
+  if (!locationPostResponse.ok) {
+    throw new Error("Network response was not ok");
+  }
+
+  const locationPostData = await locationPostResponse.json();
+  console.log("Content sent to the server successfully", locationPostData);
+  var location_id = locationPostData.id;
+
+  var fix = {
+    location_id: location_id,
+  };
+
+  await fetch("http://127.0.0.1:5001/api/v1/contents/" + content_id, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(fix),
+  });
+
+  return content_id;
 }

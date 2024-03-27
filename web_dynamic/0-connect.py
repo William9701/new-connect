@@ -6,7 +6,7 @@ from flask import flash, abort, redirect, url_for
 from models.comment import Comment
 from models.reply_comment import ReplyComment
 from models.view import View
-
+import subprocess
 from models import storage
 from models.content import Content
 from models.location import Location
@@ -31,6 +31,14 @@ bcrypt = Bcrypt(app)
 
 # app.jinja_env.trim_blocks = True
 # app.jinja_env.lstrip_blocks = True
+
+def get_user(user_id):
+    user = storage.get(User, user_id)
+    return user
+
+
+app.jinja_env.globals.update(get_user=get_user)
+
 
 def Subscribers_count(user_id):
     user = storage.get(User, user_id)
@@ -121,6 +129,34 @@ def camera(user_id):
     return render_template('camera.html', user=user)
 
 
+@app.route('/prep_content/<string:content_id>', strict_slashes=False)
+def prep_content(content_id):
+    print('prep_called')
+    content = storage.get(Content, content_id)
+    vid = content.content
+    user = get_user(content.user_id)
+    text = user.username
+
+    vid_path = f"C:\\Users\\Stanmarx\\Desktop\\new-connect\\web_dynamic\\static\\vidFiles\\videos\\{os.path.basename(vid)}"
+
+    logo_path = "C:\\Users\\Stanmarx\\Desktop\\new-connect\\web_dynamic\\static\\vidFiles\\videos\\Connect-logo-removebg-preview.png"
+    output_path = f"C:\\Users\\Stanmarx\\Desktop\\new-connect\\web_dynamic\\static\\vidFiles\\videos\\{os.path.basename(vid)}_output.mp4"
+
+    command = f'ffmpeg -i {vid_path} -i {logo_path} -c:v libx264 -crf 18 -filter_complex "[0:v][1:v] overlay=W-w-10:H-h-10, drawtext=fontfile=C\\\:/Windows/fonts/consola.ttf: text=\'{text}\': fontsize=15: fontcolor=white: x=w-tw-24: y=h-th-40" {output_path}'
+    process = subprocess.Popen(
+        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+
+    if process.returncode != 0:
+        print(f"Current working directory: {os.getcwd()}")
+        print(command)
+        print({'error': stderr.decode()})
+        return jsonify({'error': stderr.decode()}), 500
+    print('prep_ended')
+    output = f'{vid}_output.mp4'
+    return jsonify({'output': output}), 200
+
+
 @app.route('/upload', methods=['POST'], strict_slashes=False)
 def upload_file():
     file = request.files['file']
@@ -160,6 +196,24 @@ def delete_file(content_id):
         return 'File not found'
 
 
+@app.route('/deletefile/<content_id>', methods=['DELETE'], strict_slashes=False)
+def delete_Rfile(content_id):
+     # Get the file path
+    content = storage.get(Content, content_id)
+    file_path = content.content
+    # Extract the filename from the file path
+    filename = f'{os.path.basename(file_path)}_output.mp4'
+    file_path = os.path.join(os.pardir, 'new-connect', 'web_dynamic',
+                             'static', 'vidFiles', 'videos', filename)
+    # Check if the file exists
+    if os.path.exists(file_path):
+        # Delete the file
+        os.remove(file_path)
+        return 'File deleted successfully'
+    else:
+        return 'File not found'
+
+
 @app.route('/login', strict_slashes=False, methods=['GET', 'POST'])
 def login():
     cache_id = str(uuid.uuid4())
@@ -181,9 +235,13 @@ def login():
             if user.username == username:
                 if bcrypt.check_password_hash(user.password, password):
                     # Successful login, you can redirect to another page or return a response
+                    subscribed_ids = [
+                        subscribed_user.id for subscribed_user in user.subscribed]
+                    subscriber_ids = [
+                        subscriber.id for subscriber in user.subscribers]
                     return render_template('user-index.html', user=user, users=users, cache_id=cache_id,
                                            locations=locations,
-                                           contents=contents, views=views)
+                                           contents=contents, views=views, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids)
                 else:
                     # Incorrect password
                     flash("Invalid password. Please try again.")
@@ -248,23 +306,45 @@ def user_indexs():
         storage.save()
 
     user = storage.get(User, user_id)
+    subscribed_ids = [
+        subscribed_user.id for subscribed_user in user.subscribed]
+    subscriber_ids = [subscriber.id for subscriber in user.subscribers]
     locations = storage.all(Location).values()
     contents = storage.all(Content).values()
     users = storage.all(User).values()
     views = storage.all(View).values()
     cache_id = str(uuid.uuid4())
-    return render_template('user-index.html', user=user, cache_id=cache_id, users=users, locations=locations, contents=contents, views=views)
+    return render_template('user-index.html', user=user, cache_id=cache_id, users=users, locations=locations, contents=contents, views=views, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids)
 
 
 @app.route('/user_index/<string:user_id>', strict_slashes=False)
 def user_index(user_id):
     user = storage.get(User, user_id)
+    # Create lists of subscribed user IDs and subscriber IDs
+    subscribed_ids = [
+        subscribed_user.id for subscribed_user in user.subscribed]
+    subscriber_ids = [subscriber.id for subscriber in user.subscribers]
     locations = storage.all(Location).values()
     contents = storage.all(Content).values()
     users = storage.all(User).values()
     views = storage.all(View).values()
     cache_id = str(uuid.uuid4())
-    return render_template('user-index.html', user=user, cache_id=cache_id, users=users, locations=locations, contents=contents, views=views)
+    return render_template('user-index.html', user=user, cache_id=cache_id, users=users, locations=locations, contents=contents, views=views, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids)
+
+
+@app.route('/subscription/<string:user_id>', strict_slashes=False)
+def subscription(user_id):
+    user = storage.get(User, user_id)
+    # Create lists of subscribed user IDs and subscriber IDs
+    subscribed_ids = [
+        subscribed_user.id for subscribed_user in user.subscribed]
+    subscriber_ids = [subscriber.id for subscriber in user.subscribers]
+    locations = storage.all(Location).values()
+    contents = storage.all(Content).values()
+    users = storage.all(User).values()
+    views = storage.all(View).values()
+    cache_id = str(uuid.uuid4())
+    return render_template('subscrition.html', user=user, cache_id=cache_id, users=users, locations=locations, contents=contents, views=views, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids)
 
 
 @app.route('/signup', strict_slashes=False)
@@ -322,7 +402,6 @@ def play(content_id, user_id):
     else:
         num_of_comment = len(comments)
         comments.sort(key=lambda x: x.created_at, reverse=True)
-
 
     views = storage.all(View).values()
     locations = storage.all(Location).values()

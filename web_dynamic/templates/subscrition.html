@@ -6,6 +6,7 @@
     <title>Connect</title>
     <link rel="stylesheet" href="../static/styles/stlye.css" />
     <script src="../static/scripts/script.js"></script>
+    <script src="../static/scripts/sub.js"></script>
   </head>
   <body>
     <nav class="flex-div">
@@ -66,7 +67,7 @@
           <p>Home</p></a
         >
 
-        <a href="/subscription/{{ user.id }}"
+        <a href="#"
           ><img src="../static/images/subscriprion.png" alt="" />
           <p>Subscriprion</p></a
         >
@@ -111,63 +112,47 @@
       </div>
     </div>
 
-    <!----------main--------->
-
-    <div class="container">
-      <div class="banner">
-        <h1>Connect</h1>
-        <h3>
-          Your Hub for Dynamic Moments! <br />
-          <p>
-            Share unfiltered, real-life clips, and engage with your community
-            through video calls. While live sharing is in the works, dive into
-            the excitement of recorded clips and interactive video calls, making
-            every connection a memorable experience. Stay tuned for live updates
-            and more features to enhance your connectivity!
-          </p>
-        </h3>
-        <h2>Welcome {{ user.first_name}}</h2>
-        <div class="flex-btn">
-          <a href="/vid-c" class="hero-btn">Room</a>
-          <a href="/camera/{{ user.id }}" class="hero-btn">Local Post</a>
-          <a href="/lobby" class="hero-btn">Live Broadcast</a>
-        </div>
-      </div>
-      <div class="list-container">
-        {% for content in contents %}
-        <div class="vid-list">
-          <a
-            onclick="views('{{ content.id }}', '{{ user.id }}')"
-            href="/play/{{ content.id }}/{{ user.id }}"
-          >
-            <video
-              autoplay
-              src="{{ content.content }}"
-              class="thumbnail"
-            ></video>
-          </a>
-
-          <div class="flex-div">
-            {% for user in users %} {% if user.id == content.user_id %}
-            <img src="{{ user.image }}" />
-            <div class="vid-info">
-              <a href="/play/{{ content.id }}/{{ user.id }}"
-                >{{ user.first_name }} {{ user.last_name }}</a
-              >
-              {% endif %} {% endfor %}
-              <p>{{ content.description }}</p>
-              {% set ns = namespace(view_count=0) %} {% for view in views %} {%
-              if content.id == view.content_id %} {% set ns.view_count =
-              ns.view_count + 1 %} {% endif %} {% endfor %}
-              <p id="content_view">
-                {{ ns.view_count }} {{ 'view' if ns.view_count == 1 else 'views'
-                }}
-              </p>
-            </div>
+    <!-- the body of the code -->
+    <div class="sub-body">
+      <div><img src="{{user.image}}" alt="" /></div>
+      <div class="sub-list">
+        <div class="subscribe">
+          <h1>Subscribers</h1>
+          {% for subscriber in subscriber_ids%} {%set m_user =
+          get_user(subscriber)%}
+          <div>
+            <a href="" class="sub-profile"
+              ><img src="{{ m_user.image}}" alt="" />
+              <p>{{ m_user.first_name }} {{ m_user.last_name}}</p></a
+            >
           </div>
+
+          {%endfor%}
         </div>
-        {% endfor %}
+        <div class="subscribe">
+          <h1>Subscribed To</h1>
+          {% for subscribed in subscribed_ids%} {%set m_user =
+          get_user(subscribed)%}
+          <div>
+            <a href="" class="sub-profile"
+              ><img src="{{ m_user.image}}" alt="" />
+              <p>{{ m_user.first_name }} {{ m_user.last_name}}</p>
+            </a>
+          </div>
+          <div class="sub-div">
+            <button
+              id="sub_button"
+              onclick="Subscription('{{ user.id }}', '{{ m_user.user_id }}')"
+              type="button"
+            >
+              Unsubscribe
+            </button>
+          </div>
+
+          {%endfor%}
+        </div>
       </div>
     </div>
+    <!-- end of the body -->
   </body>
 </html>

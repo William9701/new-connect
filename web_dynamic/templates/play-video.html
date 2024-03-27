@@ -6,6 +6,7 @@
     <title>Play Video</title>
     <link rel="stylesheet" href="/static/styles/stlye.css" />
     <script src="/static/scripts/play-video.js"></script>
+    <script src="/static/scripts/script.js"></script>
   </head>
   <body>
     <nav class="flex-div">
@@ -27,9 +28,9 @@
         <img src="/static/images/voice-search.png" class="mic-icon" alt="" />
       </div>
       <div class="nav-right flex-div">
-        <a href="/login"><img src="/static/images/upload.png" /></a>
-
-        <img src="/static/images/more.png" />
+        <a href="/camera/{{ user.id }}"
+          ><img src="/static/images/upload.png"
+        /></a>
         <div class="location">
           <img src="/static/images/placeholder.png" />
           <div class="sub-menu-1">
@@ -49,8 +50,67 @@
             </ul>
           </div>
         </div>
+        <a href="/logout/{{ user.id }}"
+          ><img src="/static/images/logout.png"
+        /></a>
+        <a href="/profile/{{ user.id }}"
+          ><img class="user-icon" src="{{ remove_dot(user.image) }}"
+        /></a>
       </div>
     </nav>
+
+    <!-------------------------sidebar---------------->
+    <div class="sidebar small-sidebar">
+      <div class="shortcut-links">
+        <a href="/user_index/{{ user.id }}"
+          ><img src="/static/images/home.png" alt="" />
+          <p>Home</p></a
+        >
+
+        <a href="/subscription/{{ user.id }}"
+          ><img src="/static/images/subscriprion.png" alt="" />
+          <p>Subscriprion</p></a
+        >
+        <a href="/library/{{ user.id }}"
+          ><img src="/static/images/library.png" alt="" />
+          <p>Library</p></a
+        >
+        <a href="#"
+          ><img src="/static/images/history.png" alt="" />
+          <p>History</p></a
+        >
+        <a href="#"
+          ><img src="/static/images/playlist.png" alt="" />
+          <p>Playlist</p></a
+        >
+        <a href="#"
+          ><img src="/static/images/messages.png" alt="" />
+          <p>Messages</p></a
+        >
+        <hr />
+      </div>
+      <div class="subscribed-list">
+        <h3>SUBSCRIBERS</h3>
+        {% for subscriber in subscriber_ids%} {%set m_user =
+        get_user(subscriber)%}
+        <a href=""
+          ><img src="{{ remove_dot(m_user.image)}}" alt="" />
+          <p>{{ m_user.first_name }} {{ m_user.last_name}}</p></a
+        >
+        {%endfor%}
+      </div>
+      <hr />
+      <div class="subscribed-list">
+        <h3>SUBSCRIBED</h3>
+        {% for subscribed in subscribed_ids%} {%set m_user =
+        get_user(subscribed)%}
+        <a href=""
+          ><img src="{{ remove_dot(m_user.image)}}" alt="" />
+          <p>{{ m_user.first_name }} {{ m_user.last_name}}</p></a
+        >
+        {%endfor%}
+      </div>
+    </div>
 
     <div class="container play-container">
       <div class="row">

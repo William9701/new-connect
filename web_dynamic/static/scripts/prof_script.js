@@ -28,12 +28,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
           // Prepare the data for the PUT request
           var userData = {
-            image: filePath, // Replace 'image' with the actual column name
+            image: filePath, 
           };
 
           // Send a PUT request to the users API
           fetch("http://127.0.0.1:5001/api/v1/users/" + userId, {
-            // Replace 'USER_ID' with the actual user ID
             method: "PUT",
             headers: {
               "Content-Type": "application/json",

@@ -163,6 +163,13 @@
         // Confirm deletion
         var r = window.confirm("Do you want to delete this item?");
         if (r == true) {
+          fetch("/deletefile/" + content_id, {
+            method: "DELETE",
+          })
+            .then((response) => response.text())
+            .then((data) => {
+              console.log("file deleted " + data);
+            });
           fetch("/deleteContent/" + content_id, {
             method: "DELETE",
           })
