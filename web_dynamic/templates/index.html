@@ -111,10 +111,11 @@
         <div class="vid-list">
           <a href="play/{{ content.id }}">
             <video
-              autoplay
               src="{{ content.content }}"
               class="thumbnail"
+              muted
             ></video>
+            
           </a>
 
           <div class="flex-div">
@@ -133,6 +134,17 @@
         {% endfor %}
       </div>
     </div>
+    <script>
+      document.querySelector('.vid-list').addEventListener('mouseover', function() {
+        const video = this.querySelector('.thumbnail');
+        video.play();
+      });
+    
+      document.querySelector('.vid-list').addEventListener('mouseout', function() {
+        const video = this.querySelector('.thumbnail');
+        video.pause();
+      });
+    </script>
 
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
   </body>

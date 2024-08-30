@@ -115,6 +115,10 @@
 
     <div class="container">
       <div class="banner">
+          <video class="banner-video" autoplay muted loop>
+            <source src="../static/images/connect_vid.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
         <h1>Connect</h1>
         <h3>
           Your Hub for Dynamic Moments! <br />
@@ -126,8 +130,8 @@
             and more features to enhance your connectivity!
           </p>
         </h3>
-        <h2>Welcome {{ user.first_name}}</h2>
-        <div class="flex-btn">
+        <h2 style="position: sticky;">Welcome {{ user.first_name}}</h2>
+        <div style="position: relative; top: -4.2%;" class="flex-btn">
           <a href="/vid-c" class="hero-btn">Room</a>
           <a href="/camera/{{ user.id }}" class="hero-btn">Local Post</a>
           <a href="/lobby" class="hero-btn">Live Broadcast</a>
@@ -141,9 +145,9 @@
             href="/play/{{ content.id }}/{{ user.id }}"
           >
             <video
-              autoplay
               src="{{ content.content }}"
               class="thumbnail"
+              muted
             ></video>
           </a>
 
@@ -169,5 +173,16 @@
         {% endfor %}
       </div>
     </div>
+    <script>
+      document.querySelectorAll('.vid-list .thumbnail').forEach(function(video) {
+        video.addEventListener('mouseover', function() {
+          video.play();
+        });
+    
+        video.addEventListener('mouseout', function() {
+          video.pause();
+        });
+      });
+    </script>
   </body>
 </html>

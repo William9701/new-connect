@@ -139,9 +139,19 @@ document.addEventListener("DOMContentLoaded", function () {
               link.href = "play/" + content.id;
 
               var video = document.createElement("video");
-              video.autoplay = true;
+              video.muted = true;
               video.src = content.content;
               video.className = "thumbnail";
+
+              document.querySelectorAll('.vid-list .thumbnail').forEach(function(video) {
+                video.addEventListener('mouseover', function() {
+                  video.play();
+                });
+            
+                video.addEventListener('mouseout', function() {
+                  video.pause();
+                });
+              });
 
               link.appendChild(video);
               vidList.appendChild(link);

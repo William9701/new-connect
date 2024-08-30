@@ -115,7 +115,7 @@
     <div class="container play-container">
       <div class="row">
         <div class="play-video">
-          <video controls autoplay id="videoPlayer">
+          <video controls  id="videoPlayer">
             <!-- Initial source with a placeholder URL -->
             <source id="videoSource" src="" type="video/mp4" />
           </video>
@@ -308,9 +308,9 @@
           <div class="side-video-list">
             <a href="play/{{ content.id }}">
               <video
-                autoplay
                 src="{{ remove_dot(content.content) }}"
                 class="small-thumbnail"
+                muted
               ></video>
             </a>
             <div class="vid-info">
@@ -350,6 +350,18 @@
 
       // Load the new source
       video.load();
+    </script>
+    
+    <script>
+      document.querySelectorAll('.side-video-list .small-thumbnail').forEach(function(video) {
+        video.addEventListener('mouseover', function() {
+          video.play();
+        });
+    
+        video.addEventListener('mouseout', function() {
+          video.pause();
+        });
+      });
     </script>
   </body>
 </html>

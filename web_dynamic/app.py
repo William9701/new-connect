@@ -22,6 +22,7 @@ from models.engine import db_storage
 from models.comment_reaction import CommentReaction
 import requests
 import pytz
+from flask import make_response
 
 app = Flask(__name__)
 app.jinja_env.globals.update(datetime=datetime)
@@ -31,6 +32,14 @@ bcrypt = Bcrypt(app)
 
 # app.jinja_env.trim_blocks = True
 # app.jinja_env.lstrip_blocks = True
+
+
+
+@app.after_request
+def add_header(response):
+    response.cache_control.no_store = True
+    return response
+
 
 def get_user(user_id):
     user = storage.get(User, user_id)
