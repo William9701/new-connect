@@ -428,6 +428,25 @@ nav{
 	top: 0;
 	left: 0;
 }
+
+.flexi-btn {
+    display: flex;
+    flex-direction: column; /* Aligns items in a column */
+    align-items: center; /* Centers items horizontally */
+}
+
+.hover-effect {
+    width: 15%;
+    margin-bottom: 10%;
+    position: relative;
+    left: -120%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-effect:hover {
+    transform: scale(1.1); /* Scales the image on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Adds a shadow effect on hover */
+}
   
   
 @media (max-width:420px){
@@ -480,8 +499,8 @@ nav{
 	background: transparent;
 	position: relative;
 	cursor: pointer;
-	margin-left: 5%;
-	margin-top: 2%;
+	margin-left: -85%;
+	margin-top: 19%;
 	border-radius: 50px;
 	
 }

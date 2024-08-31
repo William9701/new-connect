@@ -126,74 +126,90 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch("http://127.0.0.1:5001/api/v1/users")
           .then((response) => response.json())
           .then((users) => {
-            // Clear the existing content in the container
-            var container = document.querySelector(".list-container");
-            container.innerHTML = "";
+            // Fetch views
+            fetch("http://127.0.0.1:5001/api/v1/views")
+              .then((response) => response.json())
+              .then((views) => {
+                // Clear the existing content in the container
+                var container = document.querySelector(".list-container");
+                container.innerHTML = "";
 
-            // Iterate over contents and update the container
-            contents.forEach((content) => {
-              var vidList = document.createElement("div");
-              vidList.className = "vid-list";
+                // Iterate over contents and update the container
+                contents.forEach((content) => {
+                  var vidList = document.createElement("div");
+                  vidList.className = "vid-list";
 
-              var link = document.createElement("a");
-              link.href = "play/" + content.id;
+                  var link = document.createElement("a");
+                  link.href = "play/" + content.id;
 
-              var video = document.createElement("video");
-              video.muted = true;
-              video.src = content.content;
-              video.className = "thumbnail";
+                  var video = document.createElement("video");
+                  video.muted = true;
+                  video.src = content.content;
+                  video.className = "thumbnail";
 
-              document.querySelectorAll('.vid-list .thumbnail').forEach(function(video) {
-                video.addEventListener('mouseover', function() {
-                  video.play();
+                  link.appendChild(video);
+                  vidList.appendChild(link);
+
+                  var flexDiv = document.createElement("div");
+                  flexDiv.className = "flex-div";
+
+                  var img = document.createElement("img");
+
+                  var vidInfo = document.createElement("div");
+                  vidInfo.className = "vid-info";
+
+                  users.forEach((user) => {
+                    if (user.id == content.user_id) {
+                      img.src = user.image; // Set the user's image
+                      var userLink = document.createElement("a");
+                      userLink.href = "play/" + content.id;
+                      userLink.textContent = user.first_name + " " + user.last_name;
+                      vidInfo.appendChild(userLink);
+                    }
+                  });
+
+                  var descriptionParagraph = document.createElement("p");
+                  descriptionParagraph.textContent = content.description;
+
+                  // Calculate view count
+                  var viewCount = 0;
+                  views.forEach((view) => {
+                    if (content.id == view.content_id) {
+                      viewCount++;
+                    }
+                  });
+
+                  var viewsParagraph = document.createElement("p");
+                  viewsParagraph.id = "content_view";
+                  viewsParagraph.textContent = viewCount + " " + (viewCount === 1 ? "view" : "views");
+
+                  vidInfo.appendChild(descriptionParagraph);
+                  vidInfo.appendChild(viewsParagraph);
+
+                  flexDiv.appendChild(img);
+                  flexDiv.appendChild(vidInfo);
+                  vidList.appendChild(flexDiv);
+
+                  container.appendChild(vidList);
                 });
-            
-                video.addEventListener('mouseout', function() {
-                  video.pause();
+
+                // Add event listeners for video playback on hover
+                document.querySelectorAll('.vid-list .thumbnail').forEach(function(video) {
+                  video.addEventListener('mouseover', function() {
+                    video.play();
+                  });
+
+                  video.addEventListener('mouseout', function() {
+                    video.pause();
+                  });
                 });
-              });
-
-              link.appendChild(video);
-              vidList.appendChild(link);
-
-              var flexDiv = document.createElement("div");
-              flexDiv.className = "flex-div";
-
-              var img = document.createElement("img");
-              img.src = "../static/images/Jack.png";
-
-              var vidInfo = document.createElement("div");
-              vidInfo.className = "vid-info";
-
-              users.forEach((user) => {
-                if (user.id == content.user_id) {
-                  var userLink = document.createElement("a");
-                  userLink.href = "play/" + content.id;
-                  userLink.textContent = user.first_name + " " + user.last_name;
-                  vidInfo.appendChild(userLink);
-                }
-              });
-
-              var descriptionParagraph = document.createElement("p");
-              descriptionParagraph.textContent = content.description;
-
-              var viewsParagraph = document.createElement("p");
-              viewsParagraph.textContent = content.number_of_views + " views";
-
-              vidInfo.appendChild(descriptionParagraph);
-              vidInfo.appendChild(viewsParagraph);
-
-              flexDiv.appendChild(img);
-              flexDiv.appendChild(vidInfo);
-              vidList.appendChild(flexDiv);
-
-              container.appendChild(vidList);
-            });
+              })
+              .catch((error) => console.error("Error fetching views:", error));
           })
           .catch((error) => console.error("Error fetching users:", error));
       })
       .catch((error) => console.error("Error fetching contents:", error));
-  }, 600000);
+  }, 60000);
 });
 
 /* --------this part is for the location icon querry side ----*/

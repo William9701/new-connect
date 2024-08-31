@@ -7,6 +7,18 @@ from flask import abort, jsonify, make_response, request
 from flasgger.utils import swag_from
 
 
+@app_views.route('/views', methods=['GET'], strict_slashes=False)
+@swag_from('documentation/views/get_content.yml', methods=['GET'])
+def get_viewss():
+    """
+    Retrieves the list of all content objects
+    """
+    all_views = storage.all(View).values()
+    list_views = []
+    for view in all_views:
+        list_views.append(view.to_dict())
+    return jsonify(list_views)
+
 @app_views.route('/views/<string:content_id>/', methods=['GET'])
 def get_views(content_id):
     all_views = storage.all(View).values()

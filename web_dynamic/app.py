@@ -121,7 +121,7 @@ def content_list():
     users = storage.all(User).values()
     locations = storage.all(Location).values()
 
-    return render_template('index.html', contents=contents, locations=locations, users=users, cache_id=cache_id)
+    return render_template('user-index.html', contents=contents, locations=locations, users=users, cache_id=cache_id)
 
 
 # Update the /camera route to accept user_id parameter
