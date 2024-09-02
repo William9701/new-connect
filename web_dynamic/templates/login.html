@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
-    <link rel="stylesheet" href="../static/styles/login.css" />
+    <link
+      rel="stylesheet"
+      href="../static/styles/login.css?cache_id={{ cache_id }}"
+    />
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="../static/scripts/login-connect.js ?cache_id={{ cache_id }}"></script>
     script>
@@ -36,6 +39,11 @@
         method="post"
         onsubmit="return validateForm()"
       >
+        <input
+          type="hidden"
+          name="next"
+          value="{{ request.args.get('next', '') }}"
+        />
         <p>Username</p>
         <input
           type="text"

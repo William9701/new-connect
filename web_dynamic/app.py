@@ -29,16 +29,17 @@ app.jinja_env.globals.update(datetime=datetime)
 app.secret_key = 'william667'
 bcrypt = Bcrypt(app)
 
+cache_id = str(uuid.uuid4())
 
 # app.jinja_env.trim_blocks = True
 # app.jinja_env.lstrip_blocks = True
 
 
 
-@app.after_request
-def add_header(response):
-    response.cache_control.no_store = True
-    return response
+# @app.after_request
+# def add_header(response):
+#     response.cache_control.no_store = True
+#     return response
 
 
 def get_user(user_id):
@@ -116,12 +117,12 @@ def close_db(error):
 @app.route('/content', strict_slashes=False)
 def content_list():
     """ displays a HTML page with a list of contents"""
-    cache_id = str(uuid.uuid4())
     contents = storage.all(Content).values()
     users = storage.all(User).values()
     locations = storage.all(Location).values()
+    views = storage.all(View).values()
 
-    return render_template('user-index.html', contents=contents, locations=locations, users=users, cache_id=cache_id)
+    return render_template('user-index.html', contents=contents, locations=locations, users=users, views=views, cache_id=cache_id)
 
 
 # Update the /camera route to accept user_id parameter
@@ -135,7 +136,7 @@ def camera(user_id):
         # Handle the case where the user with the given ID is not found
         abort(404)
 
-    return render_template('camera.html', user=user)
+    return render_template('camera.html', user=user, cache_id=cache_id)
 
 
 @app.route('/prep_content/<string:content_id>', strict_slashes=False)
@@ -229,6 +230,7 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        next_url = request.form.get('next')  # Retrieve the next parameter from the form data
 
         # Check if the first character of the username is '@'
         if not username.startswith('@'):
@@ -248,19 +250,26 @@ def login():
                         subscribed_user.id for subscribed_user in user.subscribed]
                     subscriber_ids = [
                         subscriber.id for subscriber in user.subscribers]
+                    print(f"Next URL: {next_url}")  # Debug statement
+                    if next_url:
+                        if '/play' in next_url:
+                            next_url = f"{next_url}/{user.id}"
+                        return redirect(next_url)
                     return render_template('user-index.html', user=user, users=users, cache_id=cache_id,
                                            locations=locations,
                                            contents=contents, views=views, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids)
                 else:
                     # Incorrect password
                     flash("Invalid password. Please try again.")
-                    return render_template('login.html')
+                    return render_template('login.html', cache_id=cache_id, next=next_url)
         # Incorrect username
         flash("Invalid username. Please try again.")
-        return render_template('login.html')
+        return render_template('login.html', cache_id=cache_id, next=next_url)
 
     # Render the login page for GET requests
-    return render_template('login.html')
+    next_url = request.args.get('next')
+    print(f"Full request URL: {request.url}")  # Debug statement
+    return render_template('login.html', cache_id=cache_id, next=next_url)
 
 
 @app.route('/user_index', methods=['POST', 'GET'], strict_slashes=False)
@@ -360,7 +369,7 @@ def subscription(user_id):
 def signup():
     """ signup page """
 
-    return render_template('signup.html')
+    return render_template('signup.html', cache_id=cache_id)
 
 
 @app.route('/logout/<string:user_id>', strict_slashes=False)
@@ -442,22 +451,67 @@ def play(content_id, user_id):
             dislikes_counts[reaction.content_id] = dislikes_counts.get(
                 reaction.content_id, 0) + 1
 
-    return render_template('play-video.html', content=content, users=users, contents=contents, locations=locations, likes_counts=likes_counts, dislikes_counts=dislikes_counts, user=user, views=views, now=now, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids, comments=comments, num_of_comment=num_of_comment, com_dislikes_counts=com_dislikes_counts, com_likes_counts=com_likes_counts)
+    return render_template('play-video.html', content=content, users=users, contents=contents, locations=locations, likes_counts=likes_counts, dislikes_counts=dislikes_counts, user=user, views=views, now=now, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids, comments=comments, num_of_comment=num_of_comment, com_dislikes_counts=com_dislikes_counts, com_likes_counts=com_likes_counts, cache_id=cache_id)
+
+@app.route('/play/<string:content_id>/', strict_slashes=False)
+def play_visitor(content_id):
+    """ play page for visitors """
+    content = storage.get(Content, content_id)
+    users = storage.all(User).values()
+    contents = storage.all(Content).values()
+    comments = storage.get_comments(Content, content_id)
+    if comments is None:
+        num_of_comment = 0
+    else:
+        num_of_comment = len(comments)
+        comments.sort(key=lambda x: x.created_at, reverse=True)
+
+    views = storage.all(View).values()
+    locations = storage.all(Location).values()
+    all_reactions = storage.all(Reaction).values()
+    comment_reactions = storage.all(CommentReaction).values()
+    now = datetime.now()
+
+    # Initialize counts
+    likes_counts = {}
+    com_likes_counts = {}
+    dislikes_counts = {}
+    com_dislikes_counts = {}
+
+    for c_reaction in comment_reactions:
+        if c_reaction.reaction == 'like':
+            com_likes_counts[c_reaction.comment_id] = com_likes_counts.get(
+                c_reaction.comment_id, 0) + 1
+        elif c_reaction.reaction == 'dislike':
+            com_dislikes_counts[c_reaction.comment_id] = com_dislikes_counts.get(
+                c_reaction.comment_id, 0) + 1
+
+    # Count likes and dislikes for each content
+    for reaction in all_reactions:
+        if reaction.reaction == 'like':
+            likes_counts[reaction.content_id] = likes_counts.get(
+                reaction.content_id, 0) + 1
+
+        elif reaction.reaction == 'dislike':
+            dislikes_counts[reaction.content_id] = dislikes_counts.get(
+                reaction.content_id, 0) + 1
+
+    return render_template('play-video-visitor.html', content=content, users=users, contents=contents, locations=locations, likes_counts=likes_counts, dislikes_counts=dislikes_counts, views=views, now=now, comments=comments, num_of_comment=num_of_comment, com_dislikes_counts=com_dislikes_counts, com_likes_counts=com_likes_counts, cache_id=cache_id)
 
 
 @app.route('/vid-chat/', strict_slashes=False)
 def vid_chat():
-    return render_template('receiver.html')
+    return render_template('receiver.html', cache_id=cache_id)
 
 
 @app.route('/lobby/', strict_slashes=False)
 def lobby():
-    return render_template('lobby.html')
+    return render_template('lobby.html', cache_id=cache_id)
 
 
 @app.route('/room/<invite_code>', strict_slashes=False)
 def room(invite_code):
-    return render_template('room.html', invite_code=invite_code)
+    return render_template('room.html', invite_code=invite_code, cache_id=cache_id)
 
 
 @app.route('/vid-chat-s/<string:user_id>', strict_slashes=False)
@@ -467,7 +521,7 @@ def vid_chat_s(user_id):
     if user is None:
         # Handle the case where the user with the given ID is not found
         abort(404)
-    return render_template('sender.html', user=user)
+    return render_template('sender.html', user=user, cache_id=cache_id)
 
 
 @app.route('/profile/<string:user_id>', strict_slashes=False)
@@ -477,7 +531,7 @@ def user_profile(user_id):
     if user is None:
         # Handle the case where the user with the given ID is not found
         abort(404)
-    return render_template('prof_index.html', user=user)
+    return render_template('prof_index.html', user=user, cache_id=cache_id)
 
 
 @app.route('/play-lib/<string:content_id>', strict_slashes=False)
@@ -487,7 +541,7 @@ def play_lib(content_id):
     users = storage.all(User).values()
     contents = storage.all(Content).values()
     locations = storage.all(Location).values()
-    return render_template('play-lib.html', library=library, users=users, contents=contents, locations=locations)
+    return render_template('play-lib.html', library=library, users=users, contents=contents, locations=locations, cache_id=cache_id)
 
 
 @app.route('/library/<string:user_id>', strict_slashes=False)
@@ -500,12 +554,12 @@ def library(user_id):
     if user is None:
         # Handle the case where the user with the given ID is not found
         abort(404)
-    return render_template('library.html', user=user, contents=contents, locations=locations)
+    return render_template('library.html', user=user, contents=contents, locations=locations, cache_id=cache_id)
 
 
 @app.route('/vid-c/', strict_slashes=False)
 def vid_c():
-    return render_template('vid_c_index.html')
+    return render_template('vid_c_index.html', cache_id=cache_id)
 
 
 if __name__ == "__main__":

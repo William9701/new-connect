@@ -4,8 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Connect</title>
-    <link rel="stylesheet" href="../static/styles/stlye.css" />
-    <script src="../static/scripts/script.js"></script>
+    <link
+      rel="stylesheet"
+      href="../static/styles/stlye.css?cache_id={{ cache_id }}"
+    />
+    <script src="../static/scripts/script.js?cache_id={{ cache_id }}"></script>
   </head>
   <body>
     <nav class="flex-div">
@@ -158,16 +161,31 @@
 
     <div class="container">
       <div class="banner">
-          <video class="banner-video" autoplay muted loop>
-            <source src="../static/images/connect_main.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
+        <video class="banner-video" autoplay muted loop>
+          <source src="../static/images/connect_main.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
 
-        <div style="position: relative; top: -4.2%;" class="flexi-btn">
+        <div style="position: relative; top: -4.2%" class="flexi-btn">
           {% if user %}
-          <a href="/vid-c"><img class="hover-effect" src="../static/images/video-call.png" alt="Room."></a>
-          <a href="/camera/{{ user.id }}"><img class="hover-effect" src="../static/images/videocam.png" alt="Room."></a>
-          <a href="/lobby"><img class="hover-effect" src="../static/images/live.png" alt="Room."></a>
+          <a href="/vid-c"
+            ><img
+              class="hover-effect"
+              src="../static/images/video-call.png"
+              alt="Room."
+          /></a>
+          <a href="/camera/{{ user.id }}"
+            ><img
+              class="hover-effect"
+              src="../static/images/videocam.png"
+              alt="Room."
+          /></a>
+          <a href="/lobby"
+            ><img
+              class="hover-effect"
+              src="../static/images/live.png"
+              alt="Room."
+          /></a>
           {% else %}
           <a href="/login" class="hero-btn">Login to get started</a>
           {% endif %}
@@ -181,11 +199,7 @@
             onclick="views('{{ content.id }}', '{{ user.id }}')"
             href="/play/{{ content.id }}/{{ user.id }}"
           >
-            <video
-              src="{{ content.content }}"
-              class="thumbnail"
-              muted
-            ></video>
+            <video src="{{ content.content }}" class="thumbnail" muted></video>
           </a>
 
           <div class="flex-div">
@@ -214,12 +228,7 @@
         {% for content in contents %}
         <div class="vid-list">
           <a href="play/{{ content.id }}">
-            <video
-              src="{{ content.content }}"
-              class="thumbnail"
-              muted
-            ></video>
-            
+            <video src="{{ content.content }}" class="thumbnail" muted></video>
           </a>
 
           <div class="flex-div">
@@ -231,7 +240,13 @@
               >
               {% endif %} {% endfor %}
               <p>{{ content.description }}</p>
-              <p>{{ content.number_of_views }} views</p>
+              {% set ns = namespace(view_count=0) %} {% for view in views %} {%
+              if content.id == view.content_id %} {% set ns.view_count =
+              ns.view_count + 1 %} {% endif %} {% endfor %}
+              <p id="content_view">
+                {{ ns.view_count }} {{ 'view' if ns.view_count == 1 else 'views'
+                }}
+              </p>
             </div>
           </div>
         </div>
@@ -240,15 +255,17 @@
       {% endif %}
     </div>
     <script>
-      document.querySelectorAll('.vid-list .thumbnail').forEach(function(video) {
-        video.addEventListener('mouseover', function() {
-          video.play();
+      document
+        .querySelectorAll(".vid-list .thumbnail")
+        .forEach(function (video) {
+          video.addEventListener("mouseover", function () {
+            video.play();
+          });
+
+          video.addEventListener("mouseout", function () {
+            video.pause();
+          });
         });
-    
-        video.addEventListener('mouseout', function() {
-          video.pause();
-        });
-      });
     </script>
   </body>
 </html>

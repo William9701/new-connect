@@ -106,32 +106,24 @@ document.addEventListener("DOMContentLoaded", function () {
   var modal = document.getElementById("myModal");
   var btn = document.getElementById("myBtn");
   var span = document.getElementById("close");
-
-  var modal = document.getElementById("myModal");
-  var btn = document.getElementById("myBtn");
-  var span = document.getElementById("close");
   var copy = document.getElementById("copy");
   var copy_text = document.getElementById("copy_text");
 
-  btn.onclick = function () {
-    event.preventDefault();
+  btn.onclick = function (event) {
     modal.style.display = "block";
     copy_text.textContent = window.location.href;
   };
 
-  span.onclick = function () {
-    event.preventDefault();
+  span.onclick = function (event) {
     modal.style.display = "none";
   };
 
-  copy.onclick = function () {
-    event.preventDefault();
+  copy.onclick = function (event) {
     navigator.clipboard.writeText(copy_text.textContent);
     alert("Copied the text: " + copy_text.textContent);
   };
 
   window.onclick = function (event) {
-    event.preventDefault();
     if (event.target == modal) {
       modal.style.display = "none";
     }

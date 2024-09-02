@@ -4,8 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Connect</title>
-    <link rel="stylesheet" href="../static/styles/stlye.css" />
-    <script src="../static/scripts/script.js"></script>
+    <link
+      rel="stylesheet"
+      href="../static/styles/stlye.css?cache_id={{ cache_id }}"
+    />
+    <script src="../static/scripts/script.js?cache_id={{ cache_id }}"></script>
   </head>
   <body>
     <nav class="flex-div">
@@ -110,12 +113,7 @@
         {% for content in contents %}
         <div class="vid-list">
           <a href="play/{{ content.id }}">
-            <video
-              src="{{ content.content }}"
-              class="thumbnail"
-              muted
-            ></video>
-            
+            <video src="{{ content.content }}" class="thumbnail" muted></video>
           </a>
 
           <div class="flex-div">
@@ -135,17 +133,21 @@
       </div>
     </div>
     <script>
-      document.querySelector('.vid-list').addEventListener('mouseover', function() {
-        const video = this.querySelector('.thumbnail');
-        video.play();
-      });
-    
-      document.querySelector('.vid-list').addEventListener('mouseout', function() {
-        const video = this.querySelector('.thumbnail');
-        video.pause();
-      });
+      document
+        .querySelector(".vid-list")
+        .addEventListener("mouseover", function () {
+          const video = this.querySelector(".thumbnail");
+          video.play();
+        });
+
+      document
+        .querySelector(".vid-list")
+        .addEventListener("mouseout", function () {
+          const video = this.querySelector(".thumbnail");
+          video.pause();
+        });
     </script>
 
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js?cache_id={{ cache_id }}"></script>
   </body>
 </html>

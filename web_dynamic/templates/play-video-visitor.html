@@ -8,8 +8,8 @@
       rel="stylesheet"
       href="/static/styles/stlye.css?cache_id={{ cache_id }}"
     />
-    <script src="/static/scripts/script.js?cache_id={{ cache_id }}"></script>
     <script src="/static/scripts/play-video.js?cache_id={{ cache_id }}"></script>
+    <script src="/static/scripts/script.js?cache_id={{ cache_id }}"></script>
   </head>
   <body>
     <nav class="flex-div">
@@ -31,9 +31,11 @@
         <img src="/static/images/voice-search.png" class="mic-icon" alt="" />
       </div>
       <div class="nav-right flex-div">
+        {% if user %}
         <a href="/camera/{{ user.id }}"
           ><img src="/static/images/upload.png"
         /></a>
+        {% endif %}
         <div class="location">
           <img src="/static/images/placeholder.png" />
           <div class="sub-menu-1">
@@ -53,65 +55,53 @@
             </ul>
           </div>
         </div>
+        {% if user %}
         <a href="/logout/{{ user.id }}"
           ><img src="/static/images/logout.png"
         /></a>
         <a href="/profile/{{ user.id }}"
           ><img class="user-icon" src="{{ remove_dot(user.image) }}"
         /></a>
+        {% endif %}
       </div>
     </nav>
 
     <!-------------------------sidebar---------------->
+
     <div class="sidebar small-sidebar">
       <div class="shortcut-links">
-        <a href="/user_index/{{ user.id }}"
-          ><img src="/static/images/home.png" alt="" />
+        <a href="/content"
+          ><img src="../static/images/home.png" alt="" />
           <p>Home</p></a
         >
-
-        <a href="/subscription/{{ user.id }}"
-          ><img src="/static/images/subscriprion.png" alt="" />
+        <a href="/login"
+          ><img src="../static/images/explore.png" alt="" />
+          <p>Explore</p></a
+        >
+        <a href="/login"
+          ><img src="../static/images/subscriprion.png" alt="" />
           <p>Subscriprion</p></a
         >
-        <a href="/library/{{ user.id }}"
-          ><img src="/static/images/library.png" alt="" />
+        <a href="/login"
+          ><img src="../static/images/library.png" alt="" />
           <p>Library</p></a
         >
-        <a href="#"
-          ><img src="/static/images/history.png" alt="" />
+        <a href="/login"
+          ><img src="../static/images/history.png" alt="" />
           <p>History</p></a
         >
-        <a href="#"
-          ><img src="/static/images/playlist.png" alt="" />
+        <a href="/login"
+          ><img src="../static/images/playlist.png" alt="" />
           <p>Playlist</p></a
         >
-        <a href="#"
-          ><img src="/static/images/messages.png" alt="" />
+        <a href="/login"
+          ><img src="../static/images/messages.png" alt="" />
           <p>Messages</p></a
         >
-        <hr />
-      </div>
-      <div class="subscribed-list">
-        <h3>SUBSCRIBERS</h3>
-        {% for subscriber in subscriber_ids%} {%set m_user =
-        get_user(subscriber)%}
         <a href=""
-          ><img src="{{ remove_dot(m_user.image)}}" alt="" />
-          <p>{{ m_user.first_name }} {{ m_user.last_name}}</p></a
+          ><img src="../static/images/show-more.png" alt="" />
+          <p>Show More</p></a
         >
-        {%endfor%}
-      </div>
-      <hr />
-      <div class="subscribed-list">
-        <h3>SUBSCRIBED</h3>
-        {% for subscribed in subscribed_ids%} {%set m_user =
-        get_user(subscribed)%}
-        <a href=""
-          ><img src="{{ remove_dot(m_user.image)}}" alt="" />
-          <p>{{ m_user.first_name }} {{ m_user.last_name}}</p></a
-        >
-        {%endfor%}
       </div>
     </div>
 
@@ -124,7 +114,7 @@
           </video>
 
           <div class="tags">
-            <a href="">#Coding</a> <a href="">#Html</a> <a href="">#CSS</a>
+            <a href="">#Coding</a><a href="">#Html</a><a href="">#CSS</a>
             <a href="">#Javascript</a>
           </div>
           <h3>{{ content.description }}</h3>
@@ -135,45 +125,40 @@
 
             <p id="content_view">
               {{ ns.view_count }} {{ 'view' if ns.view_count == 1 else 'views'
-              }} &bull; {{ content.created_at|format_time_diff(now) }}
+              }} • {{ content.created_at|format_time_diff(now) }}
             </p>
 
             <div>
-              <a href="#" onclick="like('{{ content.id }}', '{{ user.id }}')">
-                <img id="like_logo" src="/static/images/like.png" />
-                <span id="likes-{{ content.id }}"
+              <a href="/login?next={{ request.path }}"
+                ><img id="like_logo" src="/static/images/like.png" /><span
+                  id="likes-{{ content.id }}"
                   >{{ likes_counts.get(content.id, 0) }}</span
-                >
-              </a>
-
-              <a
-                href="#"
-                onclick="dislike('{{ content.id }}', '{{ user.id }}')"
+                ></a
               >
-                <img id="dislike_logo" src="/static/images/dislike.png" />
-                <span id="dislikes-{{ content.id }}"
+              <a href="/login?next={{ request.path }}"
+                ><img id="dislike_logo" src="/static/images/dislike.png" /><span
+                  id="dislikes-{{ content.id }}"
                   >{{ dislikes_counts.get(content.id, 0) }}</span
-                >
-              </a>
-
+                ></a
+              >
               <a href="#" id="myBtn"
                 ><img src="/static/images/share.png" />Share</a
               >
               <div id="myModal">
                 <div id="modalContent">
-                  <span id="close">&times;</span>
-                  <span id="copy">&#128203;</span>
+                  <span id="close">×</span>
+                  <span id="copy">📋</span>
                   <p id="copy_text"></p>
                 </div>
               </div>
-              <a href="#" onclick="Save('{{ content.id }}')"
+              <a href="/login?next={{ request.path }}"
                 ><img src="/static/images/save.png" />Save</a
               >
             </div>
           </div>
           <hr />
           <div class="publisher">
-            {% for user in users%} {% if user.id == content.user_id%}
+            {% for user in users %} {% if user.id == content.user_id %}
             <img src="{{ remove_dot(user.image) }}" />
             <div>
               <p>{{ user.username }}</p>
@@ -184,44 +169,13 @@
                 }}</span
               >
             </div>
-            {% if user.id == content.user_id %}
-            <button
-              id="sub_button"
-              onclick="Subscription('{{ user.id }}', '{{ content.user_id }}')"
-              type="button"
-              style="display: none"
-            >
-              {% if content.user_id in subscribed_ids %} Unsubscribe {% else %}
-              Subscribe {% endif %}
-            </button>
-            {% else %}
-            <button
-              id="sub_button"
-              onclick="Subscription('{{ user.id }}', '{{ content.user_id }}')"
-              type="button"
-            >
-              {% if content.user_id in subscribed_ids %} Unsubscribe {% else %}
-              Subscribe {% endif %}
-            </button>
-            {% endif %}
           </div>
 
           <div class="vid-description">
             <p>{{ content.description }}</p>
-
             <p>Subscribe here to watch more</p>
             <hr />
             <h4 id="comment_count">{{ num_of_comment }} Comments</h4>
-
-            <div class="add-comment">
-              <img src="{{ remove_dot(user.image) }}" />
-              <input
-                id="commentInput"
-                type="text"
-                placeholder="Write comments..."
-                onkeydown="handleEnter(event, '{{ user.id }}', '{{ content.id }}')"
-              />
-            </div>
 
             <div id="commentsSection">
               {% if comments is not none %} {% for comment in comments %} {% for
@@ -230,82 +184,32 @@
                 <img id="comment_image" src="{{ remove_dot(muser.image) }}" />
                 <div style="margin-left: 50px">
                   <h3>
-                    {{ muser.first_name }} {{ muser.last_name }}
-                    <span>{{ comment.created_at|format_time_diff(now) }}</span>
+                    {{ muser.first_name }} {{ muser.last_name }}<span
+                      >{{ comment.created_at|format_time_diff(now) }}</span
+                    >
                   </h3>
                   <p>{{ comment.text }}</p>
                   <div class="acomment-action">
-                    <a
-                      href="#"
-                      onclick="com_like('{{ comment.id }}', '{{ user.id }}')"
-                    >
-                      <img src="/static/images/like.png" />
-                      <span id="comment_like_{{ comment.id }}"
+                    <a href="/login?next={{ request.path }}"
+                      ><img src="/static/images/like.png" /><span
+                        id="comment_like_{{ comment.id }}"
                         >{{ com_likes_counts.get(comment.id, 0) }}</span
-                      >
-                    </a>
-
-                    <a
-                      href="#"
-                      onclick="com_dislike('{{ comment.id }}', '{{ user.id }}')"
+                      ></a
                     >
-                      <img src="/static/images/dislike.png" />
-                      <span id="comment_dislike_{{ comment.id }}"
+                    <a href="/login?next={{ request.path }}"
+                      ><img src="/static/images/dislike.png" /><span
+                        id="comment_dislike_{{ comment.id }}"
                         >{{ com_dislikes_counts.get(comment.id, 0) }}</span
-                      >
-                    </a>
-
-                    {%if comment.user_id == user.id%}
-                    <a
-                      href="#"
-                      onclick="deleteComment('{{ user.id }}', '{{ content.id }}', event,'{{comment.id}}',)"
-                    >
-                      <img
-                        id=""
-                        class="delete"
-                        style="width: 17px; margin-right: 10px"
-                        src="/static/images/trash.png"
-                        alt=""
-                      />
-                    </a>
-                    {%endif%}
-
-                    <a
-                      href=""
-                      onclick="Reply('{{ comment.id }}', '{{ user.id }}')"
-                      ><span>REPLY</span></a
-                    >
-                    <a
-                      href=""
-                      onclick="allReplies('{{ comment.id }}', '{{ user.id }}')"
-                      >ALL replies</a
+                      ></a
                     >
                   </div>
-                  <input
-                    class="comment_block"
-                    id="comment-comment_{{ comment.id }}"
-                    type="text"
-                    placeholder="Reply"
-                    style="display: none"
-                    onkeydown="ReplyhandleEnter(event, '{{ user.id }}', '{{ comment.id }}')"
-                  />
-
-                  <!-- this is the Reply_comment section -->
-
-                  <div
-                    id="Reply_comment_block_{{ comment.id }}"
-                    style="display: none; flex-direction: column"
-                  >
-                    <!-- Reply_comment_image -->
-                  </div>
-
-                  <!-- comment-comment ends here -->
                 </div>
               </div>
-              {% endif %} {% endfor %} {% endfor %} {%endif%}
+              {% endif %} {% endfor %} {% endfor %} {% endif %}
             </div>
           </div>
         </div>
+
         <div class="right-sidebar">
           {% for content in contents %} {% if loop.index <= 7 %}
           <div class="side-video-list">
