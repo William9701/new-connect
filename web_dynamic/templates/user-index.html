@@ -14,9 +14,15 @@
     <nav class="flex-div">
       <div class="nav-left flex-div">
         <img src="../static/images/menu.png" class="menu-icon" />
+        {% if user %}
+        <a href="/index"
+          ><img src="../static/images/Connect-logo.png" class="logo"
+        /></a>
+        {% else %}
         <a href="/content"
           ><img src="../static/images/Connect-logo.png" class="logo"
         /></a>
+        {% endif %}
       </div>
       <div class="nav-midle flex-div">
         <div class="search-box flex-div">
@@ -69,7 +75,7 @@
     {% if user %}
     <div class="sidebar small-sidebar">
       <div class="shortcut-links">
-        <a href="/user_index/{{ user.id }}"
+        <a href="/index"
           ><img src="../static/images/home.png" alt="" />
           <p>Home</p></a
         >
@@ -197,7 +203,7 @@
         <div class="vid-list">
           <a
             onclick="views('{{ content.id }}', '{{ user.id }}')"
-            href="/play/{{ content.id }}/{{ user.id }}"
+            href="/play/{{ content.id }}?token={{ session['token'] }}"
           >
             <video src="{{ content.content }}" class="thumbnail" muted></video>
           </a>
@@ -206,7 +212,7 @@
             {% for user in users %} {% if user.id == content.user_id %}
             <img src="{{ user.image }}" />
             <div class="vid-info">
-              <a href="/play/{{ content.id }}/{{ user.id }}"
+              <a href="/play/{{ content.id }}?token={{ session['token'] }}"
                 >{{ user.first_name }} {{ user.last_name }}</a
               >
               {% endif %} {% endfor %}
@@ -227,7 +233,7 @@
       <div class="list-container">
         {% for content in contents %}
         <div class="vid-list">
-          <a href="play/{{ content.id }}">
+          <a href="play_v/{{ content.id }}">
             <video src="{{ content.content }}" class="thumbnail" muted></video>
           </a>
 
@@ -235,7 +241,7 @@
             {% for user in users %} {% if user.id == content.user_id %}
             <img src="{{ user.image }}" />
             <div class="vid-info">
-              <a href="play/{{ content.id }}"
+              <a href="play_v/{{ content.id }}"
                 >{{ user.first_name }} {{ user.last_name }}</a
               >
               {% endif %} {% endfor %}

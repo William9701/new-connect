@@ -238,26 +238,18 @@ def login():
             username = '@' + username
 
         users = storage.all(User).values()
-        locations = storage.all(Location).values()
-        contents = storage.all(Content).values()
-        views = storage.all(View).values()
-
         for user in users:
             if user.username == username:
                 if bcrypt.check_password_hash(user.password, password):
                     # Successful login, you can redirect to another page or return a response
-                    subscribed_ids = [
-                        subscribed_user.id for subscribed_user in user.subscribed]
-                    subscriber_ids = [
-                        subscriber.id for subscriber in user.subscribers]
-                    print(f"Next URL: {next_url}")  # Debug statement
+                    session['user_id'] = user.id
+                    session['token'] = str(uuid.uuid4())  # Generate a unique token
+                    print(session['user_id'])
                     if next_url:
                         if '/play' in next_url:
-                            next_url = f"{next_url}/{user.id}"
+                            next_url = next_url.replace('/play_v', '/play')
                         return redirect(next_url)
-                    return render_template('user-index.html', user=user, users=users, cache_id=cache_id,
-                                           locations=locations,
-                                           contents=contents, views=views, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids)
+                    return redirect(url_for('user_index'))
                 else:
                     # Incorrect password
                     flash("Invalid password. Please try again.")
@@ -335,8 +327,13 @@ def user_indexs():
     return render_template('user-index.html', user=user, cache_id=cache_id, users=users, locations=locations, contents=contents, views=views, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids)
 
 
-@app.route('/user_index/<string:user_id>', strict_slashes=False)
-def user_index(user_id):
+@app.route('/index', strict_slashes=False)
+def user_index():
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("Please log in to continue.")
+        return redirect(url_for('login'))
+    
     user = storage.get(User, user_id)
     # Create lists of subscribed user IDs and subscriber IDs
     subscribed_ids = [
@@ -401,59 +398,67 @@ def logout(user_id):
     return redirect(url_for('content_list'))
 
 
-@app.route('/play/<string:content_id>/<string:user_id>/', strict_slashes=False)
-def play(content_id, user_id):
+@app.route('/play/<string:content_id>', strict_slashes=False)
+def play(content_id):
     """ play page """
-    content = storage.get(Content, content_id)
-    user = storage.get(User, user_id)
 
-    # Create lists of subscribed user IDs and subscriber IDs
-    subscribed_ids = [
-        subscribed_user.id for subscribed_user in user.subscribed]
-    subscriber_ids = [subscriber.id for subscriber in user.subscribers]
+    user_id = session.get('user_id')
+    next_url = f'/play/{content_id}'
+    if user_id:
+        user = storage.get(User, user_id)
+        content = storage.get(Content, content_id)
+        user = storage.get(User, user_id)
 
-    users = storage.all(User).values()
-    contents = storage.all(Content).values()
-    comments = storage.get_comments(Content, content_id)
-    if comments is None:
-        num_of_comment = 0
+        # Create lists of subscribed user IDs and subscriber IDs
+        subscribed_ids = [
+            subscribed_user.id for subscribed_user in user.subscribed]
+        subscriber_ids = [subscriber.id for subscriber in user.subscribers]
+
+        users = storage.all(User).values()
+        contents = storage.all(Content).values()
+        comments = storage.get_comments(Content, content_id)
+        if comments is None:
+            num_of_comment = 0
+        else:
+            num_of_comment = len(comments)
+            comments.sort(key=lambda x: x.created_at, reverse=True)
+
+        views = storage.all(View).values()
+        locations = storage.all(Location).values()
+        all_reactions = storage.all(Reaction).values()
+        comment_reactions = storage.all(CommentReaction).values()
+        now = datetime.now()
+
+        # Initialize counts
+        likes_counts = {}
+        com_likes_counts = {}
+        dislikes_counts = {}
+        com_dislikes_counts = {}
+
+        for c_reaction in comment_reactions:
+            if c_reaction.reaction == 'like':
+                com_likes_counts[c_reaction.comment_id] = com_likes_counts.get(
+                    c_reaction.comment_id, 0) + 1
+            elif c_reaction.reaction == 'dislike':
+                com_dislikes_counts[c_reaction.comment_id] = com_dislikes_counts.get(
+                    c_reaction.comment_id, 0) + 1
+
+        # Count likes and dislikes for each content
+        for reaction in all_reactions:
+            if reaction.reaction == 'like':
+                likes_counts[reaction.content_id] = likes_counts.get(
+                    reaction.content_id, 0) + 1
+
+            elif reaction.reaction == 'dislike':
+                dislikes_counts[reaction.content_id] = dislikes_counts.get(
+                    reaction.content_id, 0) + 1
+
+        return render_template('play-video.html', content=content, users=users, contents=contents, locations=locations, likes_counts=likes_counts, dislikes_counts=dislikes_counts, user=user, views=views, now=now, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids, comments=comments, num_of_comment=num_of_comment, com_dislikes_counts=com_dislikes_counts, com_likes_counts=com_likes_counts, cache_id=cache_id)
     else:
-        num_of_comment = len(comments)
-        comments.sort(key=lambda x: x.created_at, reverse=True)
+        return render_template('login.html', cache_id=cache_id, next_url=next_url)
+    
 
-    views = storage.all(View).values()
-    locations = storage.all(Location).values()
-    all_reactions = storage.all(Reaction).values()
-    comment_reactions = storage.all(CommentReaction).values()
-    now = datetime.now()
-
-    # Initialize counts
-    likes_counts = {}
-    com_likes_counts = {}
-    dislikes_counts = {}
-    com_dislikes_counts = {}
-
-    for c_reaction in comment_reactions:
-        if c_reaction.reaction == 'like':
-            com_likes_counts[c_reaction.comment_id] = com_likes_counts.get(
-                c_reaction.comment_id, 0) + 1
-        elif c_reaction.reaction == 'dislike':
-            com_dislikes_counts[c_reaction.comment_id] = com_dislikes_counts.get(
-                c_reaction.comment_id, 0) + 1
-
-    # Count likes and dislikes for each content
-    for reaction in all_reactions:
-        if reaction.reaction == 'like':
-            likes_counts[reaction.content_id] = likes_counts.get(
-                reaction.content_id, 0) + 1
-
-        elif reaction.reaction == 'dislike':
-            dislikes_counts[reaction.content_id] = dislikes_counts.get(
-                reaction.content_id, 0) + 1
-
-    return render_template('play-video.html', content=content, users=users, contents=contents, locations=locations, likes_counts=likes_counts, dislikes_counts=dislikes_counts, user=user, views=views, now=now, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids, comments=comments, num_of_comment=num_of_comment, com_dislikes_counts=com_dislikes_counts, com_likes_counts=com_likes_counts, cache_id=cache_id)
-
-@app.route('/play/<string:content_id>/', strict_slashes=False)
+@app.route('/play_v/<string:content_id>/', strict_slashes=False)
 def play_visitor(content_id):
     """ play page for visitors """
     content = storage.get(Content, content_id)

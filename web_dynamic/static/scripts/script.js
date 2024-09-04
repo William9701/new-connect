@@ -163,7 +163,8 @@ document.addEventListener("DOMContentLoaded", function () {
                       img.src = user.image; // Set the user's image
                       var userLink = document.createElement("a");
                       userLink.href = "play/" + content.id;
-                      userLink.textContent = user.first_name + " " + user.last_name;
+                      userLink.textContent =
+                        user.first_name + " " + user.last_name;
                       vidInfo.appendChild(userLink);
                     }
                   });
@@ -181,7 +182,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
                   var viewsParagraph = document.createElement("p");
                   viewsParagraph.id = "content_view";
-                  viewsParagraph.textContent = viewCount + " " + (viewCount === 1 ? "view" : "views");
+                  viewsParagraph.textContent =
+                    viewCount + " " + (viewCount === 1 ? "view" : "views");
 
                   vidInfo.appendChild(descriptionParagraph);
                   vidInfo.appendChild(viewsParagraph);
@@ -194,15 +196,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
 
                 // Add event listeners for video playback on hover
-                document.querySelectorAll('.vid-list .thumbnail').forEach(function(video) {
-                  video.addEventListener('mouseover', function() {
-                    video.play();
-                  });
+                document
+                  .querySelectorAll(".vid-list .thumbnail")
+                  .forEach(function (video) {
+                    video.addEventListener("mouseover", function () {
+                      video.play();
+                    });
 
-                  video.addEventListener('mouseout', function() {
-                    video.pause();
+                    video.addEventListener("mouseout", function () {
+                      video.pause();
+                    });
                   });
-                });
               })
               .catch((error) => console.error("Error fetching views:", error));
           })
@@ -342,7 +346,7 @@ function views(content_id, user_id) {
         document.getElementById(
           "content_view"
         ).textContent = `${data.views} views`;
-        window.location.href = `/play/${content_id}/${user_id}`;
+        window.location.href = `/play/${content_id}`;
       });
   });
 }

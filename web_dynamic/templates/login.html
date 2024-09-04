@@ -42,7 +42,7 @@
         <input
           type="hidden"
           name="next"
-          value="{{ request.args.get('next', '') }}"
+          value="{{ request.args.get('next', '') if request.args else next_url }}"
         />
         <p>Username</p>
         <input
