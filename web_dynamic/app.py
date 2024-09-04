@@ -56,9 +56,22 @@ def Subscribers_count(user_id):
     subscriber_ids = [subscriber.id for subscriber in user.subscribers]
     # Return the count of subscribers
     return len(subscriber_ids)
-
-
 app.jinja_env.globals.update(Subscribers_count=Subscribers_count)
+
+
+
+def video_count(user_id):
+    videos = storage.all(Content).values()
+    bag = [video for video in videos if video.user_id == user_id]
+    return len(bag) if bag else '0'
+
+app.jinja_env.globals.update(video_count=video_count)
+
+def User_video(user_id):
+    videos = storage.all(Content).values()
+    return [video for video in videos if video.user_id == user_id]
+
+app.jinja_env.globals.update(User_video=User_video)
 
 
 def remove_dot(content):
@@ -66,8 +79,6 @@ def remove_dot(content):
         return content[2:]
     else:
         return content
-
-
 app.jinja_env.globals.update(remove_dot=remove_dot)
 
 

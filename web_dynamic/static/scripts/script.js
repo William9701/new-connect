@@ -213,7 +213,7 @@ document.addEventListener("DOMContentLoaded", function () {
           .catch((error) => console.error("Error fetching users:", error));
       })
       .catch((error) => console.error("Error fetching contents:", error));
-  }, 60000);
+  }, 900000);
 });
 
 /* --------this part is for the location icon querry side ----*/
