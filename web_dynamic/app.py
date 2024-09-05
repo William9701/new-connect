@@ -409,6 +409,11 @@ def logout(user_id):
     return redirect(url_for('content_list'))
 
 
+@app.route('/user-profile', strict_slashes=False)
+def users_profile():
+    return render_template('user-profile.html')
+
+
 @app.route('/play/<string:content_id>', strict_slashes=False)
 def play(content_id):
     """ play page """

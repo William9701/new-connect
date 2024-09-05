@@ -115,105 +115,6 @@ document.addEventListener("DOMContentLoaded", function () {
     sidebar.classList.toggle("small-sidebar");
     container.classList.toggle("large-container");
   };
-  setInterval(function () {
-    console.log("Interval function called");
-
-    // Fetch contents
-    fetch("http://127.0.0.1:5001/api/v1/contents")
-      .then((response) => response.json())
-      .then((contents) => {
-        // Fetch users
-        fetch("http://127.0.0.1:5001/api/v1/users")
-          .then((response) => response.json())
-          .then((users) => {
-            // Fetch views
-            fetch("http://127.0.0.1:5001/api/v1/views")
-              .then((response) => response.json())
-              .then((views) => {
-                // Clear the existing content in the container
-                var container = document.querySelector(".list-container");
-                container.innerHTML = "";
-
-                // Iterate over contents and update the container
-                contents.forEach((content) => {
-                  var vidList = document.createElement("div");
-                  vidList.className = "vid-list";
-
-                  var link = document.createElement("a");
-                  link.href = "play/" + content.id;
-
-                  var video = document.createElement("video");
-                  video.muted = true;
-                  video.src = content.content;
-                  video.className = "thumbnail";
-
-                  link.appendChild(video);
-                  vidList.appendChild(link);
-
-                  var flexDiv = document.createElement("div");
-                  flexDiv.className = "flex-div";
-
-                  var img = document.createElement("img");
-
-                  var vidInfo = document.createElement("div");
-                  vidInfo.className = "vid-info";
-
-                  users.forEach((user) => {
-                    if (user.id == content.user_id) {
-                      img.src = user.image; // Set the user's image
-                      var userLink = document.createElement("a");
-                      userLink.href = "play/" + content.id;
-                      userLink.textContent =
-                        user.first_name + " " + user.last_name;
-                      vidInfo.appendChild(userLink);
-                    }
-                  });
-
-                  var descriptionParagraph = document.createElement("p");
-                  descriptionParagraph.textContent = content.description;
-
-                  // Calculate view count
-                  var viewCount = 0;
-                  views.forEach((view) => {
-                    if (content.id == view.content_id) {
-                      viewCount++;
-                    }
-                  });
-
-                  var viewsParagraph = document.createElement("p");
-                  viewsParagraph.id = "content_view";
-                  viewsParagraph.textContent =
-                    viewCount + " " + (viewCount === 1 ? "view" : "views");
-
-                  vidInfo.appendChild(descriptionParagraph);
-                  vidInfo.appendChild(viewsParagraph);
-
-                  flexDiv.appendChild(img);
-                  flexDiv.appendChild(vidInfo);
-                  vidList.appendChild(flexDiv);
-
-                  container.appendChild(vidList);
-                });
-
-                // Add event listeners for video playback on hover
-                document
-                  .querySelectorAll(".vid-list .thumbnail")
-                  .forEach(function (video) {
-                    video.addEventListener("mouseover", function () {
-                      video.play();
-                    });
-
-                    video.addEventListener("mouseout", function () {
-                      video.pause();
-                    });
-                  });
-              })
-              .catch((error) => console.error("Error fetching views:", error));
-          })
-          .catch((error) => console.error("Error fetching users:", error));
-      })
-      .catch((error) => console.error("Error fetching contents:", error));
-  }, 900000);
 });
 
 /* --------this part is for the location icon querry side ----*/
@@ -326,6 +227,216 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+async function updateContent() {
+  console.log("Interval function called");
+
+  // Fetch contents
+  fetch("http://127.0.0.1:5001/api/v1/contents")
+    .then((response) => response.json())
+    .then((contents) => {
+      // Fetch users
+      fetch("http://127.0.0.1:5001/api/v1/users")
+        .then((response) => response.json())
+        .then((users) => {
+          // Fetch views
+          fetch("http://127.0.0.1:5001/api/v1/views")
+            .then((response) => response.json())
+            .then((views) => {
+              // Clear the existing content in the container
+              var container = document.querySelector(".list-container");
+              container.innerHTML = "";
+
+              // Iterate over contents and update the container
+              contents.forEach((content) => {
+                var vidList = document.createElement("div");
+                vidList.className = "vid-list";
+
+                var link = document.createElement("a");
+                link.href = "/play/" + content.id;
+                link.setAttribute(
+                  "onclick",
+                  `views('${content.id}', '${content.user_id}')`
+                );
+
+                var video = document.createElement("video");
+                video.muted = true;
+                video.src = content.content;
+                video.className = "thumbnail";
+
+                link.appendChild(video);
+                vidList.appendChild(link);
+
+                var flexDiv = document.createElement("div");
+                flexDiv.className = "flex-div";
+
+                var img = document.createElement("img");
+
+                var vidInfo = document.createElement("div");
+                vidInfo.className = "vid-info";
+
+                users.forEach(async (user) => {
+                  if (user.id == content.user_id) {
+                    img.src = user.image; // Set the user's image
+                    var userLink = document.createElement("a");
+                    userLink.href = "#";
+                    userLink.className = "openModal";
+                    userLink.setAttribute(
+                      "data-modal-id",
+                      "modal-" + content.id
+                    );
+                    userLink.textContent =
+                      user.first_name + " " + user.last_name;
+                    vidInfo.appendChild(userLink);
+
+                    var modal = document.createElement("div");
+                    modal.id = "modal-" + content.id;
+                    modal.className = "modal";
+
+                    var modalContent = document.createElement("div");
+                    modalContent.className = "modal-content";
+
+                    var closeButton = document.createElement("span");
+                    closeButton.className = "close";
+                    closeButton.setAttribute(
+                      "data-modal-id",
+                      "modal-" + content.id
+                    );
+                    closeButton.innerHTML = "×";
+
+                    closeButton.addEventListener("click", function () {
+                      const modalId = this.getAttribute("data-modal-id");
+                      document.getElementById(modalId).style.display = "none";
+                    });
+
+                    var userInfo = document.createElement("div");
+                    userInfo.className = "user-info";
+
+                    var userLink = document.createElement("a");
+                    userLink.href = "/user-profile";
+
+                    var userImage = document.createElement("img");
+                    userImage.src = user.image;
+                    userImage.alt = "User Image";
+                    userImage.className = "user-image";
+
+                    userLink.appendChild(userImage);
+
+                    var userDetails = document.createElement("div");
+                    userDetails.className = "user-details";
+
+                    var userName = document.createElement("p");
+                    userName.textContent =
+                      user.first_name + " " + user.last_name;
+
+                    var subscribersCount = document.createElement("p");
+                    var subscribers = await Subscribers_count(content.user_id);
+                    subscribersCount.innerHTML = `Subscribers: <span id="subscribers">${subscribers} ${
+                      subscribers === 1 ? "Subscriber" : "Subscribers"
+                    }</span>`;
+
+                    var videosPostedCount = document.createElement("p");
+                    var videosPosted = await video_count(content.user_id);
+                    videosPostedCount.innerHTML = `Videos Posted: <span id="videosPosted">${videosPosted} ${
+                      videosPosted === 1 ? "Video" : "Videos"
+                    }</span>`;
+
+                    userDetails.appendChild(userName);
+                    userDetails.appendChild(subscribersCount);
+                    userDetails.appendChild(videosPostedCount);
+
+                    userInfo.appendChild(userLink);
+                    userInfo.appendChild(userDetails);
+
+                    var videoGrid = document.createElement("div");
+                    videoGrid.className = "video-grid";
+
+                    var userVideos = await User_video(content.user_id);
+                    if (userVideos) {
+                      userVideos.forEach((video) => {
+                        var videoThumbnail = document.createElement("div");
+                        videoThumbnail.className = "video-thumbnail";
+
+                        var videoElement = document.createElement("video");
+                        videoElement.src = video.content;
+                        videoElement.controls = true;
+
+                        videoThumbnail.appendChild(videoElement);
+                        videoGrid.appendChild(videoThumbnail);
+                      });
+                    }
+
+                    modalContent.appendChild(closeButton);
+                    modalContent.appendChild(userInfo);
+                    modalContent.appendChild(videoGrid);
+                    modal.appendChild(modalContent);
+                    vidInfo.appendChild(modal);
+                  }
+                });
+
+                var descriptionParagraph = document.createElement("p");
+                descriptionParagraph.textContent = content.description;
+
+                // Calculate view count
+                var viewCount = 0;
+                views.forEach((view) => {
+                  if (content.id == view.content_id) {
+                    viewCount++;
+                  }
+                });
+
+                var viewsParagraph = document.createElement("p");
+                viewsParagraph.id = "content_view";
+                viewsParagraph.textContent =
+                  viewCount + " " + (viewCount === 1 ? "view" : "views");
+
+                vidInfo.appendChild(descriptionParagraph);
+                vidInfo.appendChild(viewsParagraph);
+
+                flexDiv.appendChild(img);
+                flexDiv.appendChild(vidInfo);
+                vidList.appendChild(flexDiv);
+
+                container.appendChild(vidList);
+              });
+
+              // Add event listeners for video playback on hover
+              document
+                .querySelectorAll(".vid-list .thumbnail")
+                .forEach(function (video) {
+                  video.addEventListener("mouseover", function () {
+                    video.play();
+                  });
+
+                  video.addEventListener("mouseout", function () {
+                    video.pause();
+                  });
+                });
+
+              // Add event listeners for modals
+              document
+                .querySelectorAll(".openModal")
+                .forEach(function (modalLink) {
+                  modalLink.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    const modalId = this.getAttribute("data-modal-id");
+                    document.getElementById(modalId).style.display = "block";
+                  });
+                });
+
+              window.addEventListener("click", function (event) {
+                if (event.target.classList.contains("modal")) {
+                  event.target.style.display = "none";
+                }
+              });
+            })
+            .catch((error) => console.error("Error fetching views:", error));
+        })
+        .catch((error) => console.error("Error fetching users:", error));
+    })
+    .catch((error) => console.error("Error fetching contents:", error));
+}
+
 function views(content_id, user_id) {
   event.preventDefault();
   console.log(user_id);
@@ -350,3 +461,68 @@ function views(content_id, user_id) {
       });
   });
 }
+
+async function Subscribers_count(user_id) {
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:5001/api/v1/users/${user_id}`
+    );
+    const user = await response.json();
+    // Create a list of subscriber IDs
+    const subscriber_ids = user.subscribers.map((subscriber) => subscriber.id);
+    // Return the count of subscribers
+    return subscriber_ids.length;
+  } catch (error) {
+    console.error("Error:", error);
+    return 0; // Return 0 in case of an error
+  }
+}
+
+async function video_count(user_id) {
+  try {
+    const response = await fetch(`http://127.0.0.1:5001/api/v1/contents`);
+    const contents = await response.json();
+    // Create a list of videos for the given user_id
+    const bag = contents.filter((video) => video.user_id === user_id);
+    // Return the count of videos or '0' if no videos found
+    return bag.length ? bag.length : "0";
+  } catch (error) {
+    console.error("Error:", error);
+    return "0"; // Return '0' in case of an error
+  }
+}
+
+async function User_video(user_id) {
+  try {
+    const response = await fetch(`http://127.0.0.1:5001/api/v1/contents`);
+    const contents = await response.json();
+    const bag = contents.filter((video) => video.user_id === user_id);
+    return bag;
+  } catch (error) {
+    console.error("Error:", error);
+    return []; // Return an empty array in case of an error
+  }
+}
+
+let previousContentCount = 0;
+
+async function checkForNewContent() {
+  try {
+    const response = await fetch("http://127.0.0.1:5001/api/v1/contents");
+    const contents = await response.json();
+    const currentContentCount = contents.length;
+
+    if (currentContentCount !== previousContentCount) {
+      previousContentCount = currentContentCount;
+      updateContent();
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+// Initial content check
+checkForNewContent();
+
+// Set interval to check for new content every 5 seconds
+setInterval(checkForNewContent, 5000);

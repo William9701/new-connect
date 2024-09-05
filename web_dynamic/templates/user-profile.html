@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Profile</title>
+    <link
+      rel="stylesheet"
+      href="../static/styles/stlye.css?cache_id={{ cache_id }}"
+    />
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="../static/scripts/script.js?cache_id={{ cache_id }}"></script>
+    <style>
+      .profile-img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+      .modal-img {
+        width: 100%;
+      }
+      .video-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+      }
+      .video-thumbnail {
+        width: 100%;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="flex-div">
+      <div class="nav-left flex-div">
+        <img src="../static/images/menu.png" class="menu-icon" />
+        {% if user %}
+        <a href="/index"
+          ><img src="../static/images/Connect-logo.png" class="logo"
+        /></a>
+        {% else %}
+        <a href="/content"
+          ><img src="../static/images/Connect-logo.png" class="logo"
+        /></a>
+        {% endif %}
+      </div>
+      <div class="nav-midle flex-div">
+        <div class="search-box flex-div">
+          <form action="" class="search-bar">
+            <input type="text" name="q" placeholder="Search By Location" />
+            <button type="submit">
+              <img src="../static/images/search.png" />
+            </button>
+          </form>
+        </div>
+        <img src="../static/images/voice-search.png" class="mic-icon" alt="" />
+      </div>
+      <div class="nav-right flex-div">
+        {% if user %}
+        <a href="/camera/{{ user.id }}"
+          ><img src="../static/images/upload.png"
+        /></a>
+        {% endif %}
+        <div class="location">
+          <img src="../static/images/placeholder.png" />
+          <div class="sub-menu-1">
+            <ul>
+              {% set used_names = [] %} {% for location in locations %} {% if
+              location.name not in used_names %}
+              <li>
+                <a
+                  href="#"
+                  class="location-link"
+                  data-name="{{ location.name }}"
+                  >{{ location.name }}</a
+                >
+              </li>
+              {% set _ = used_names.append(location.name) %} {% endif %} {%
+              endfor %}
+            </ul>
+          </div>
+        </div>
+        {% if user %}
+        <a href="/logout/{{ user.id }}"
+          ><img src="../static/images/logout.png"
+        /></a>
+        <a href="/profile/{{ user.id }}"
+          ><img class="user-icon" src="{{ user.image }}"
+        /></a>
+        {% endif %}
+      </div>
+    </nav>
+
+    <!-------------------------sidebar---------------->
+    {% if user %}
+    <div class="sidebar small-sidebar">
+      <div class="shortcut-links">
+        <a href="/index"
+          ><img src="../static/images/home.png" alt="" />
+          <p>Home</p></a
+        >
+
+        <a href="/subscription/{{ user.id }}"
+          ><img src="../static/images/subscriprion.png" alt="" />
+          <p>Subscriprion</p></a
+        >
+        <a href="/library/{{ user.id }}"
+          ><img src="../static/images/library.png" alt="" />
+          <p>Library</p></a
+        >
+        <a href="#"
+          ><img src="../static/images/history.png" alt="" />
+          <p>History</p></a
+        >
+        <a href="#"
+          ><img src="../static/images/playlist.png" alt="" />
+          <p>Playlist</p></a
+        >
+        <a href="#"
+          ><img src="../static/images/messages.png" alt="" />
+          <p>Messages</p></a
+        >
+        <hr />
+      </div>
+      <div class="subscribed-list">
+        <h3>SUBSCRIBERS</h3>
+        {% for subscriber in subscriber_ids%} {%set m_user =
+        get_user(subscriber)%}
+        <a href=""
+          ><img src="{{ m_user.image}}" alt="" />
+          <p>{{ m_user.first_name }} {{ m_user.last_name}}</p></a
+        >
+        {%endfor%}
+      </div>
+      <hr />
+      <div class="subscribed-list">
+        <h3>SUBSCRIBED</h3>
+        {% for subscribed in subscribed_ids%} {%set m_user =
+        get_user(subscribed)%}
+        <a href=""
+          ><img src="{{ m_user.image}}" alt="" />
+          <p>{{ m_user.first_name }} {{ m_user.last_name}}</p></a
+        >
+        {%endfor%}
+      </div>
+    </div>
+    {% else %}
+    <div class="sidebar small-sidebar">
+      <div class="shortcut-links">
+        <a href="/content"
+          ><img src="../static/images/home.png" alt="" />
+          <p>Home</p></a
+        >
+        <a href="/login"
+          ><img src="../static/images/explore.png" alt="" />
+          <p>Explore</p></a
+        >
+        <a href="/login"
+          ><img src="../static/images/subscriprion.png" alt="" />
+          <p>Subscriprion</p></a
+        >
+        <a href="/login"
+          ><img src="../static/images/library.png" alt="" />
+          <p>Library</p></a
+        >
+        <a href="/login"
+          ><img src="../static/images/history.png" alt="" />
+          <p>History</p></a
+        >
+        <a href="/login"
+          ><img src="../static/images/playlist.png" alt="" />
+          <p>Playlist</p></a
+        >
+        <a href="/login"
+          ><img src="../static/images/messages.png" alt="" />
+          <p>Messages</p></a
+        >
+        <a href=""
+          ><img src="../static/images/show-more.png" alt="" />
+          <p>Show More</p></a
+        >
+      </div>
+    </div>
+    {% endif %}
+    <div class="container mt-5">
+      <div class="row">
+        <div class="col-md-3">
+          <img
+            src="user-image.jpg"
+            alt="User Image"
+            class="profile-img"
+            data-toggle="modal"
+            data-target="#imageModal"
+          />
+        </div>
+        <div class="col-md-9">
+          <h2>User Name</h2>
+          <p>Email: user@example.com</p>
+          <p>
+            Bio: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            Integer nec odio. Praesent libero. Sed cursus ante dapibus diam.
+          </p>
+        </div>
+      </div>
+      <div class="row mt-5">
+        <div class="col-12">
+          <h3>User Videos</h3>
+          <div class="video-grid">
+            <div class="video-item">
+              <video class="video-thumbnail" controls>
+                <source src="video1.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div class="video-item">
+              <video class="video-thumbnail" controls>
+                <source src="video2.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <!-- Add more video items as needed -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="imageModal"
+      tabindex="-1"
+      aria-labelledby="imageModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="imageModalLabel">User Image</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <img src="user-image.jpg" alt="User Image" class="modal-img" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  </body>
+</html>

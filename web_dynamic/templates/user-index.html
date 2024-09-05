@@ -226,11 +226,14 @@
                     >&times;</span
                   >
                   <div class="user-info">
-                    <img
-                      src="{{ user.image }}"
-                      alt="User Image"
-                      class="user-image"
-                    />
+                    <a href="/user-profile">
+                      <img
+                        src="{{ user.image }}"
+                        alt="User Image"
+                        class="user-image"
+                      />
+                    </a>
+
                     <div class="user-details">
                       <p>{{ user.first_name }} {{ user.last_name }}</p>
                       <p>
@@ -288,9 +291,59 @@
             {% for user in users %} {% if user.id == content.user_id %}
             <img src="{{ user.image }}" />
             <div class="vid-info">
-              <a href="play_v/{{ content.id }}"
-                >{{ user.first_name }} {{ user.last_name }}</a
+              <a
+                href="#"
+                class="openModal"
+                data-modal-id="modal-{{ content.id }}"
               >
+                {{ user.first_name }} {{ user.last_name }}
+              </a>
+
+              <div id="modal-{{ content.id }}" class="modal">
+                <div class="modal-content">
+                  <span class="close" data-modal-id="modal-{{ content.id }}"
+                    >&times;</span
+                  >
+                  <div class="user-info">
+                    <a href="/user-profile">
+                      <img
+                        src="{{ user.image }}"
+                        alt="User Image"
+                        class="user-image"
+                      />
+                    </a>
+
+                    <div class="user-details">
+                      <p>{{ user.first_name }} {{ user.last_name }}</p>
+                      <p>
+                        Subscribers: {% set count =
+                        Subscribers_count(content.user_id) %}
+                        <span id="subscribers"
+                          >{{ count }} {{ 'Subscriber' if count == 1 else
+                          'Subscribers' }}</span
+                        >
+                      </p>
+                      <p>
+                        Videos Posted: {% set count =
+                        video_count(content.user_id) %}
+                        <span id="videosPosted"
+                          >{{ count }} {{ 'Video' if count == 1 else 'Videos'
+                          }}</span
+                        >
+                      </p>
+                    </div>
+                  </div>
+                  <div class="video-grid">
+                    {% set videos = User_video(content.user_id) %} {% for video
+                    in videos %}
+                    <div class="video-thumbnail">
+                      <video src="{{ video.content }}" controls></video>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+
               {% endif %} {% endfor %}
               <p>{{ content.description }}</p>
               {% set ns = namespace(view_count=0) %} {% for view in views %} {%
