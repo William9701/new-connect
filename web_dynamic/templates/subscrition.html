@@ -31,9 +31,14 @@
         <img src="../static/images/voice-search.png" class="mic-icon" alt="" />
       </div>
       <div class="nav-right flex-div">
-        <a href="/camera/{{ user.id }}"
-          ><img src="../static/images/upload.png"
-        /></a>
+        {% if user %}
+        <form action="/camera" method="POST">
+          <input type="hidden" name="user_id" value="{{ user.id }}" />
+          <button type="submit" style="border: none; background: none">
+            <img src="../static/images/upload.png" alt="Upload" />
+          </button>
+        </form>
+        {% endif %}
         <div class="location">
           <img src="../static/images/placeholder.png" />
           <div class="sub-menu-1">
@@ -70,11 +75,11 @@
           <p>Home</p></a
         >
 
-        <a href="#"
+        <a href="/subscription"
           ><img src="../static/images/subscriprion.png" alt="" />
           <p>Subscriprion</p></a
         >
-        <a href="/library/{{ user.id }}"
+        <a href="/library"
           ><img src="../static/images/library.png" alt="" />
           <p>Library</p></a
         >

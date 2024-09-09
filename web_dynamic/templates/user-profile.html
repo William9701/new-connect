@@ -25,8 +25,8 @@
       }
       .video-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 15px;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 27px;
       }
       .video-thumbnail {
         width: 100%;
@@ -34,7 +34,13 @@
       }
     </style>
   </head>
-  <body>
+  <body
+    style="
+      background: url(../static/images/connect-background.jpg) no-repeat center
+        center fixed;
+      background-size: 95% 100%;
+    "
+  >
     <nav class="flex-div">
       <div class="nav-left flex-div">
         <img src="../static/images/menu.png" class="menu-icon" />
@@ -43,7 +49,7 @@
           ><img src="../static/images/Connect-logo.png" class="logo"
         /></a>
         {% else %}
-        <a href="/content"
+        <a href="/"
           ><img src="../static/images/Connect-logo.png" class="logo"
         /></a>
         {% endif %}
@@ -61,9 +67,12 @@
       </div>
       <div class="nav-right flex-div">
         {% if user %}
-        <a href="/camera/{{ user.id }}"
-          ><img src="../static/images/upload.png"
-        /></a>
+        <form action="/camera" method="POST">
+          <input type="hidden" name="user_id" value="{{ user.id }}" />
+          <button type="submit" style="border: none; background: none">
+            <img src="../static/images/upload.png" alt="Upload" />
+          </button>
+        </form>
         {% endif %}
         <div class="location">
           <img src="../static/images/placeholder.png" />
@@ -104,11 +113,11 @@
           <p>Home</p></a
         >
 
-        <a href="/subscription/{{ user.id }}"
+        <a href="/subscription"
           ><img src="../static/images/subscriprion.png" alt="" />
           <p>Subscriprion</p></a
         >
-        <a href="/library/{{ user.id }}"
+        <a href="/library"
           ><img src="../static/images/library.png" alt="" />
           <p>Library</p></a
         >
@@ -151,7 +160,7 @@
     {% else %}
     <div class="sidebar small-sidebar">
       <div class="shortcut-links">
-        <a href="/content"
+        <a href="/"
           ><img src="../static/images/home.png" alt="" />
           <p>Home</p></a
         >
@@ -186,11 +195,19 @@
       </div>
     </div>
     {% endif %}
-    <div class="container mt-5">
+    <div
+      class="container mt-5"
+      style="
+        background: transparent;
+        backdrop-filter: blur(1px) saturate(180%);
+        position: fixed;
+        left: 7%;
+      "
+    >
       <div class="row">
         <div class="col-md-3">
           <img
-            src="user-image.jpg"
+            src="{{ user.image}}"
             alt="User Image"
             class="profile-img"
             data-toggle="modal"
@@ -198,31 +215,23 @@
           />
         </div>
         <div class="col-md-9">
-          <h2>User Name</h2>
-          <p>Email: user@example.com</p>
-          <p>
-            Bio: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-            Integer nec odio. Praesent libero. Sed cursus ante dapibus diam.
-          </p>
+          <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+          <p>Email: {{ user.email }}</p>
+          <p>Bio: {{ user.description }}.</p>
         </div>
       </div>
       <div class="row mt-5">
         <div class="col-12">
-          <h3>User Videos</h3>
+          <h3 style="color: honeydew">{{ user.last_name }}'s Videos</h3>
           <div class="video-grid">
+            {% for content in contents %}
             <div class="video-item">
               <video class="video-thumbnail" controls>
-                <source src="video1.mp4" type="video/mp4" />
+                <source src="{{ content.content }}" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>
-            <div class="video-item">
-              <video class="video-thumbnail" controls>
-                <source src="video2.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            </div>
-            <!-- Add more video items as needed -->
+            {% endfor %}
           </div>
         </div>
       </div>

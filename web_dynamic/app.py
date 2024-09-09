@@ -125,7 +125,7 @@ def close_db(error):
     storage.close()
 
 
-@app.route('/content', strict_slashes=False)
+@app.route('/', strict_slashes=False)
 def content_list():
     """ displays a HTML page with a list of contents"""
     contents = storage.all(Content).values()
@@ -139,8 +139,9 @@ def content_list():
 # Update the /camera route to accept user_id parameter
 
 
-@app.route('/camera/<string:user_id>', strict_slashes=False)
-def camera(user_id):
+@app.route('/camera', methods=['POST'], strict_slashes=False)
+def camera():
+    user_id = request.form.get('user_id')
     # Fetch user data using user_id
     user = storage.get(User, user_id)
     if user is None:
@@ -148,6 +149,7 @@ def camera(user_id):
         abort(404)
 
     return render_template('camera.html', user=user, cache_id=cache_id)
+
 
 
 @app.route('/prep_content/<string:content_id>', strict_slashes=False)
@@ -158,10 +160,10 @@ def prep_content(content_id):
     user = get_user(content.user_id)
     text = user.username
 
-    vid_path = f"C:\\Users\\Stanmarx\\Desktop\\new-connect\\web_dynamic\\static\\vidFiles\\videos\\{os.path.basename(vid)}"
+    vid_path = f"C:\\Users\\ASUS\\Desktop\\new-connect\\web_dynamic\\static\\vidFiles\\videos\\{os.path.basename(vid)}"
 
-    logo_path = "C:\\Users\\Stanmarx\\Desktop\\new-connect\\web_dynamic\\static\\vidFiles\\videos\\Connect-logo-removebg-preview.png"
-    output_path = f"C:\\Users\\Stanmarx\\Desktop\\new-connect\\web_dynamic\\static\\vidFiles\\videos\\{os.path.basename(vid)}_output.mp4"
+    logo_path = "C:\\Users\\ASUS\\Desktop\\new-connect\\web_dynamic\\static\\vidFiles\\videos\\Connect-logo-removebg-preview.png"
+    output_path = f"C:\\Users\\ASUS\\Desktop\\new-connect\\web_dynamic\\static\\vidFiles\\videos\\{os.path.basename(vid)}_output.mp4"
 
     command = f'ffmpeg -i {vid_path} -i {logo_path} -c:v libx264 -crf 18 -filter_complex "[0:v][1:v] overlay=W-w-10:H-h-10, drawtext=fontfile=C\\\:/Windows/fonts/consola.ttf: text=\'{text}\': fontsize=15: fontcolor=white: x=w-tw-24: y=h-th-40" {output_path}'
     process = subprocess.Popen(
@@ -358,8 +360,9 @@ def user_index():
     return render_template('user-index.html', user=user, cache_id=cache_id, users=users, locations=locations, contents=contents, views=views, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids)
 
 
-@app.route('/subscription/<string:user_id>', strict_slashes=False)
-def subscription(user_id):
+@app.route('/subscription', strict_slashes=False)
+def subscription():
+    user_id = session.get('user_id')
     user = storage.get(User, user_id)
     # Create lists of subscribed user IDs and subscriber IDs
     subscribed_ids = [
@@ -409,9 +412,17 @@ def logout(user_id):
     return redirect(url_for('content_list'))
 
 
-@app.route('/user-profile', strict_slashes=False)
+@app.route('/user-profile', methods=['POST'], strict_slashes=False)
 def users_profile():
-    return render_template('user-profile.html')
+    user_id = request.form.get('user_id')
+    user = storage.get(User, user_id)
+    all_contents = storage.all(Content).values()
+    contents = []
+    for content in all_contents:
+        if content.user_id == user_id:
+            contents.append(content)
+
+    return render_template('user-profile.html', user=user, contents=contents)
 
 
 @app.route('/play/<string:content_id>', strict_slashes=False)
@@ -423,7 +434,7 @@ def play(content_id):
     if user_id:
         user = storage.get(User, user_id)
         content = storage.get(Content, content_id)
-        user = storage.get(User, user_id)
+        
 
         # Create lists of subscribed user IDs and subscriber IDs
         subscribed_ids = [
@@ -565,17 +576,19 @@ def play_lib(content_id):
     return render_template('play-lib.html', library=library, users=users, contents=contents, locations=locations, cache_id=cache_id)
 
 
-@app.route('/library/<string:user_id>', strict_slashes=False)
-def library(user_id):
+@app.route('/library', strict_slashes=False)
+def library():
+    user_id = session.get('user_id')
     # Fetch user data using user_id
     user = storage.get(User, user_id)
     contents = storage.all(Content).values()
     locations = storage.all(Location).values()
+    views = storage.all(View).values()
 
     if user is None:
         # Handle the case where the user with the given ID is not found
         abort(404)
-    return render_template('library.html', user=user, contents=contents, locations=locations, cache_id=cache_id)
+    return render_template('library.html', user=user, contents=contents, locations=locations, cache_id=cache_id, views=views)
 
 
 @app.route('/vid-c/', strict_slashes=False)

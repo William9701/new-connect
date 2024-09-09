@@ -69,6 +69,9 @@ document.addEventListener("DOMContentLoaded", function () {
                       var vid_info = document.createElement("div");
                       vid_info.className = "vid-info";
 
+                      var info_text = document.createElement("div");
+                      info_text.className = "info_text";
+
                       users.forEach((user) => {
                         if (user.id == location.user_id) {
                           var user_link = document.createElement("a");
@@ -76,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
                           user_link.textContent =
                             user.first_name + " " + user.last_name;
 
-                          vid_info.appendChild(user_link);
+                          info_text.appendChild(user_link);
                         }
                       });
 
@@ -86,8 +89,9 @@ document.addEventListener("DOMContentLoaded", function () {
                       var p_views = document.createElement("p");
                       p_views.textContent = content.number_of_views + " views";
 
-                      vid_info.appendChild(p_desc);
-                      vid_info.appendChild(p_views);
+                      info_text.appendChild(p_desc);
+                      info_text.appendChild(p_views);
+                      vid_info.appendChild(info_text);
 
                       flex_div.appendChild(vid_info);
 
@@ -275,6 +279,9 @@ async function updateContent() {
                 var vidInfo = document.createElement("div");
                 vidInfo.className = "vid-info";
 
+                var info_text = document.createElement("div");
+                info_text.className = "info-text";
+
                 users.forEach(async (user) => {
                   if (user.id == content.user_id) {
                     img.src = user.image; // Set the user's image
@@ -287,7 +294,7 @@ async function updateContent() {
                     );
                     userLink.textContent =
                       user.first_name + " " + user.last_name;
-                    vidInfo.appendChild(userLink);
+                    info_text.appendChild(userLink);
 
                     var modal = document.createElement("div");
                     modal.id = "modal-" + content.id;
@@ -312,15 +319,29 @@ async function updateContent() {
                     var userInfo = document.createElement("div");
                     userInfo.className = "user-info";
 
+                    var userForm = document.createElement("form");
+                    userForm.action = "/user-profile";
+                    userForm.method = "POST";
+
                     var userLink = document.createElement("a");
-                    userLink.href = "/user-profile";
+                    userLink.href = "#";
+                    userLink.onclick = function () {
+                      userForm.submit();
+                    };
 
                     var userImage = document.createElement("img");
                     userImage.src = user.image;
                     userImage.alt = "User Image";
                     userImage.className = "user-image";
 
+                    var userIdInput = document.createElement("input");
+                    userIdInput.type = "hidden";
+                    userIdInput.name = "user_id";
+                    userIdInput.value = content.user_id;
+
                     userLink.appendChild(userImage);
+                    userForm.appendChild(userLink);
+                    userForm.appendChild(userIdInput);
 
                     var userDetails = document.createElement("div");
                     userDetails.className = "user-details";
@@ -345,7 +366,7 @@ async function updateContent() {
                     userDetails.appendChild(subscribersCount);
                     userDetails.appendChild(videosPostedCount);
 
-                    userInfo.appendChild(userLink);
+                    userInfo.appendChild(userForm);
                     userInfo.appendChild(userDetails);
 
                     var videoGrid = document.createElement("div");
@@ -370,7 +391,7 @@ async function updateContent() {
                     modalContent.appendChild(userInfo);
                     modalContent.appendChild(videoGrid);
                     modal.appendChild(modalContent);
-                    vidInfo.appendChild(modal);
+                    info_text.appendChild(modal);
                   }
                 });
 
@@ -390,8 +411,10 @@ async function updateContent() {
                 viewsParagraph.textContent =
                   viewCount + " " + (viewCount === 1 ? "view" : "views");
 
-                vidInfo.appendChild(descriptionParagraph);
-                vidInfo.appendChild(viewsParagraph);
+                info_text.appendChild(descriptionParagraph);
+                info_text.appendChild(viewsParagraph);
+
+                vidInfo.appendChild(info_text);
 
                 flexDiv.appendChild(img);
                 flexDiv.appendChild(vidInfo);

@@ -37,9 +37,13 @@
       </div>
       <div class="nav-right flex-div">
         {% if user %}
-        <a href="/camera/{{ user.id }}"
-          ><img src="../static/images/upload.png"
-        /></a>
+        <form action="/camera" method="POST">
+          <input type="hidden" name="user_id" value="{{ user.id }}" />
+          <button type="submit" style="border: none; background: none">
+            <img src="../static/images/upload.png" alt="Upload" />
+          </button>
+        </form>
+
         {% endif %}
         <div class="location">
           <img src="../static/images/placeholder.png" />
@@ -80,11 +84,11 @@
           <p>Home</p></a
         >
 
-        <a href="/subscription/{{ user.id }}"
+        <a href="/subscription"
           ><img src="../static/images/subscriprion.png" alt="" />
           <p>Subscriprion</p></a
         >
-        <a href="/library/{{ user.id }}"
+        <a href="/library"
           ><img src="../static/images/library.png" alt="" />
           <p>Library</p></a
         >
@@ -180,12 +184,17 @@
               src="../static/images/video-call.png"
               alt="Room."
           /></a>
-          <a href="/camera/{{ user.id }}"
-            ><img
-              class="hover-effect"
-              src="../static/images/videocam.png"
-              alt="Room."
-          /></a>
+          <form action="/camera" method="POST">
+            <input type="hidden" name="user_id" value="{{ user.id }}" />
+            <button type="submit" style="border: none; background: none">
+              <img
+                class="hover-effect"
+                src="../static/images/videocam.png"
+                alt="Room."
+              />
+            </button>
+          </form>
+
           <a href="/lobby"
             ><img
               class="hover-effect"
@@ -212,68 +221,87 @@
             {% for user in users %} {% if user.id == content.user_id %}
             <img src="{{ user.image }}" />
             <div class="vid-info">
-              <a
-                href="#"
-                class="openModal"
-                data-modal-id="modal-{{ content.id }}"
-              >
-                {{ user.first_name }} {{ user.last_name }}
-              </a>
+              <div class="info-text">
+                <a
+                  href="#"
+                  class="openModal"
+                  data-modal-id="modal-{{ content.id }}"
+                >
+                  {{ user.first_name }} {{ user.last_name }}
+                </a>
 
-              <div id="modal-{{ content.id }}" class="modal">
-                <div class="modal-content">
-                  <span class="close" data-modal-id="modal-{{ content.id }}"
-                    >&times;</span
-                  >
-                  <div class="user-info">
-                    <a href="/user-profile">
-                      <img
-                        src="{{ user.image }}"
-                        alt="User Image"
-                        class="user-image"
-                      />
-                    </a>
+                <div id="modal-{{ content.id }}" class="modal">
+                  <div class="modal-content">
+                    <span class="close" data-modal-id="modal-{{ content.id }}"
+                      >&times;</span
+                    >
+                    <div class="user-info">
+                      <form
+                        id="userProfileForm"
+                        action="/user-profile"
+                        method="POST"
+                        style="display: none"
+                      >
+                        <input
+                          type="hidden"
+                          name="user_id"
+                          id="user_id"
+                          value="{{ content.user_id }}"
+                        />
+                      </form>
 
-                    <div class="user-details">
-                      <p>{{ user.first_name }} {{ user.last_name }}</p>
-                      <p>
-                        Subscribers: {% set count =
-                        Subscribers_count(content.user_id) %}
-                        <span id="subscribers"
-                          >{{ count }} {{ 'Subscriber' if count == 1 else
-                          'Subscribers' }}</span
-                        >
-                      </p>
-                      <p>
-                        Videos Posted: {% set count =
-                        video_count(content.user_id) %}
-                        <span id="videosPosted"
-                          >{{ count }} {{ 'Video' if count == 1 else 'Videos'
-                          }}</span
-                        >
-                      </p>
+                      <a
+                        href="#"
+                        onclick="document.getElementById('userProfileForm').submit();"
+                      >
+                        <img
+                          src="{{ user.image }}"
+                          alt="User Image"
+                          class="user-image"
+                        />
+                      </a>
+
+                      <div class="user-details">
+                        <p>{{ user.first_name }} {{ user.last_name }}</p>
+                        <p>
+                          Subscribers: {% set count =
+                          Subscribers_count(content.user_id) %}
+                          <span id="subscribers"
+                            >{{ count }} {{ 'Subscriber' if count == 1 else
+                            'Subscribers' }}</span
+                          >
+                        </p>
+                        <p>
+                          Videos Posted: {% set count =
+                          video_count(content.user_id) %}
+                          <span id="videosPosted"
+                            >{{ count }} {{ 'Video' if count == 1 else 'Videos'
+                            }}</span
+                          >
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div class="video-grid">
-                    {% set videos = User_video(content.user_id) %} {% for video
-                    in videos %}
-                    <div class="video-thumbnail">
-                      <video src="{{ video.content }}" controls></video>
+                    <div class="video-grid">
+                      {% set videos = User_video(content.user_id) %} {% for
+                      video in videos %}
+                      <div class="video-thumbnail">
+                        <video src="{{ video.content }}" controls></video>
+                      </div>
+                      {% endfor %}
                     </div>
-                    {% endfor %}
                   </div>
                 </div>
-              </div>
 
-              {% endif %} {% endfor %}
-              <p>{{ content.description }}</p>
-              {% set ns = namespace(view_count=0) %} {% for view in views %} {%
-              if content.id == view.content_id %} {% set ns.view_count =
-              ns.view_count + 1 %} {% endif %} {% endfor %}
-              <p id="content_view">
-                {{ ns.view_count }} {{ 'view' if ns.view_count == 1 else 'views'
-                }}
-              </p>
+                {% endif %} {% endfor %}
+                <p>{{ content.description }}</p>
+                {% set ns = namespace(view_count=0) %} {% for view in views %}
+                {% if content.id == view.content_id %} {% set ns.view_count =
+                ns.view_count + 1 %} {% endif %} {% endfor %}
+                <p id="content_view">
+                  {{ ns.view_count }} {{ 'view' if ns.view_count == 1 else
+                  'views' }}
+                </p>
+              </div>
             </div>
           </div>
         </div>

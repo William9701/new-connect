@@ -70,9 +70,9 @@
           ><img src="../static/images/explore.png" alt="" />
           <p>Explore</p></a
         >
-        <a href="#"
+        <a href="/subscription"
           ><img src="../static/images/subscriprion.png" alt="" />
-          <p>Subscriprion</p></a
+          <p>Subscription</p></a
         >
         <a href="#"
           ><img src="../static/images/library.png" alt="" />
@@ -128,36 +128,52 @@
         {% for content in contents %} {%if content.user_id == user.id%}
         <div class="vid-list">
           <a href="/play/{{ content.id }}">
-            <video
-              autoplay
-              src="{{ content.content }}"
-              class="thumbnail"
-            ></video>
+            <video muted src="{{ content.content }}" class="thumbnail"></video>
           </a>
 
           <div class="flex-div">
             <img src="../static/images/Jack.png" />
             <div class="vid-info">
-              <a href="play/{{ content.id }}"
-                >{{ user.first_name }} {{ user.last_name }}</a
-              >
-
-              <p>{{ content.description }}</p>
-              <p>{{ content.number_of_views }} views</p>
+              <div class="info-text">
+                <a href="play/{{ content.id }}"
+                  >{{ user.first_name }} {{ user.last_name }}</a
+                >
+                <p>{{ content.description }}</p>
+                {% set ns = namespace(view_count=0) %} {% for view in views %}
+                {% if content.id == view.content_id %} {% set ns.view_count =
+                ns.view_count + 1 %} {% endif %} {% endfor %}
+                <p id="content_view">
+                  {{ ns.view_count }} {{ 'view' if ns.view_count == 1 else
+                  'views' }}
+                </p>
+              </div>
+              <a href="#" onclick="deleteContent('{{content.id}}', event)">
+                <img
+                  id="delete_logo"
+                  class="delete"
+                  src="../static/images/trash.png"
+                  alt="Delete"
+                />
+              </a>
             </div>
-            <a href="#" onclick="deleteContent('{{content.id}}', event)">
-              <img
-                id="delete_logo"
-                class="delete"
-                src="../static/images/trash.png"
-                alt=""
-              />
-            </a>
           </div>
         </div>
         {% endif %}{% endfor %}
       </div>
     </div>
+    <script>
+      document
+        .querySelectorAll(".vid-list .thumbnail")
+        .forEach(function (video) {
+          video.addEventListener("mouseover", function () {
+            video.play();
+          });
+
+          video.addEventListener("mouseout", function () {
+            video.pause();
+          });
+        });
+    </script>
     <script>
       function deleteContent(content_id, event) {
         console.log("delete called");

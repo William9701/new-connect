@@ -603,19 +603,29 @@ body {
   object-fit: contain;
 }
 .vid-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   color: #5a5a5a;
   font-size: 13px;
 }
+
+.vid-info .info-text {
+  flex-grow: 1;
+}
+
 .vid-info a {
   color: #000;
   font-weight: 600;
   display: block;
   margin-bottom: 5px;
 }
+
 #delete_logo {
   width: 20px;
-  margin-left: 180px;
+  cursor: pointer;
 }
+
 @media (max-width: 900px) {
   .nav-midle .search-box input {
     font-size: 20px;
