@@ -162,7 +162,7 @@ def prep_content(content_id):
 
     vid_path = f"C:\\Users\\ASUS\\Desktop\\new-connect\\web_dynamic\\static\\vidFiles\\videos\\{os.path.basename(vid)}"
 
-    logo_path = "C:\\Users\\ASUS\\Desktop\\new-connect\\web_dynamic\\static\\vidFiles\\videos\\Connect-logo-removebg-preview.png"
+    logo_path = "C:\\Users\\ASUS\\Desktop\\new-connect\\web_dynamic\\static\\vidFiles\\images\\Connect-logo-removebg-preview.png"
     output_path = f"C:\\Users\\ASUS\\Desktop\\new-connect\\web_dynamic\\static\\vidFiles\\videos\\{os.path.basename(vid)}_output.mp4"
 
     command = f'ffmpeg -i {vid_path} -i {logo_path} -c:v libx264 -crf 18 -filter_complex "[0:v][1:v] overlay=W-w-10:H-h-10, drawtext=fontfile=C\\\:/Windows/fonts/consola.ttf: text=\'{text}\': fontsize=15: fontcolor=white: x=w-tw-24: y=h-th-40" {output_path}'
