@@ -208,7 +208,7 @@
         <div class="right-sidebar">
           {% for content in contents %} {% if loop.index <= 7 %}
           <div class="side-video-list">
-            <a href="play/{{ content.id }}">
+            <a href="{{ content.id }}">
               <video
                 src="{{ remove_dot(content.content) }}"
                 class="small-thumbnail"
@@ -216,19 +216,21 @@
               ></video>
             </a>
             <div class="vid-info">
-              {% for user in users %} {% if user.id == content.user_id %}
-              <a href="play/{{ content.id }}"
-                >{{ user.first_name }} {{ user.last_name }}</a
-              >
-              {% endif %} {% endfor %}
-              <p>{{ content.description }}</p>
-              {% set ns = namespace(view_count=0) %} {% for view in views %} {%
-              if content.id == view.content_id %} {% set ns.view_count =
-              ns.view_count + 1 %} {% endif %} {% endfor %}
-              <p>
-                {{ ns.view_count }} {{ 'view' if ns.view_count == 1 else 'views'
-                }}
-              </p>
+              <div class="info-text" style="margin-top: -22%">
+                {% for user in users %} {% if user.id == content.user_id %}
+                <a href="{{ content.id }}"
+                  >{{ user.first_name }} {{ user.last_name }}</a
+                >
+                {% endif %} {% endfor %}
+                <p>{{ content.description }}</p>
+                {% set ns = namespace(view_count=0) %} {% for view in views %}
+                {% if content.id == view.content_id %} {% set ns.view_count =
+                ns.view_count + 1 %} {% endif %} {% endfor %}
+                <p>
+                  {{ ns.view_count }} {{ 'view' if ns.view_count == 1 else
+                  'views' }}
+                </p>
+              </div>
             </div>
           </div>
           {% endif %} {% endfor %}

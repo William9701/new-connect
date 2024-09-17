@@ -139,9 +139,9 @@ def content_list():
 # Update the /camera route to accept user_id parameter
 
 
-@app.route('/camera', methods=['POST'], strict_slashes=False)
+@app.route('/camera',strict_slashes=False)
 def camera():
-    user_id = request.form.get('user_id')
+    user_id = session.get('user_id')
     # Fetch user data using user_id
     user = storage.get(User, user_id)
     if user is None:

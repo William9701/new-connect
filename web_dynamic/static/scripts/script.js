@@ -114,10 +114,12 @@ document.addEventListener("DOMContentLoaded", function () {
   var menuicon = document.querySelector(".menu-icon");
   var sidebar = document.querySelector(".sidebar");
   var container = document.querySelector(".container");
+  var flex = document.querySelector(".flexi-btn");
 
   menuicon.onclick = function () {
     sidebar.classList.toggle("small-sidebar");
     container.classList.toggle("large-container");
+    flex.classList.toggle("shift");
   };
 });
 
@@ -480,7 +482,13 @@ function views(content_id, user_id) {
         document.getElementById(
           "content_view"
         ).textContent = `${data.views} views`;
-        window.location.href = `/play/${content_id}`;
+        const bodyElement = document.body;
+        const userId = bodyElement.getAttribute("data-user-id");
+        if (userId && userId !== "none") {
+          window.location.href = `/play/${content_id}`;
+        } else {
+          window.location.href = `/play_v/${content_id}`;
+        }
       });
   });
 }

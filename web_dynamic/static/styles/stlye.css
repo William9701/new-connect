@@ -571,6 +571,10 @@ body {
     font-size: 8px;
   }
 }
+.shift {
+  left: 8%;
+  transition: 1s;
+}
 .hero-btn:hover {
   border: 1px solid red;
   background: red;
@@ -709,9 +713,6 @@ body {
 
 /* --------------------play video page --------*/
 
-.play-container {
-  padding-left: 2%;
-}
 .row {
   display: flex;
   justify-content: space-between;
@@ -724,7 +725,9 @@ body {
   flex-basis: 30%;
 }
 .play-video video {
-  width: 100%;
+  width: 1166px;
+  height: 695px;
+  border-radius: 20px;
 }
 .side-video-list {
   display: flex;

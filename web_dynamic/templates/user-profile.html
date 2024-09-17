@@ -200,7 +200,7 @@
       style="
         background: transparent;
         backdrop-filter: blur(1px) saturate(180%);
-        position: fixed;
+        position: absolute;
         left: 7%;
       "
     >
@@ -226,10 +226,17 @@
           <div class="video-grid">
             {% for content in contents %}
             <div class="video-item">
-              <video class="video-thumbnail" controls>
-                <source src="{{ content.content }}" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+              <a href="/play/{{ content.id }}">
+                <video class="video-thumbnail">
+                  <source
+                    src="{{ content.content }}"
+                    type="video/mp4"
+                    class="thumbnail"
+                    muted
+                  />
+                  Your browser does not support the video tag.
+                </video>
+              </a>
             </div>
             {% endfor %}
           </div>
@@ -264,6 +271,27 @@
         </div>
       </div>
     </div>
+    <script>
+      document
+        .querySelectorAll(".video-item .thumbnail")
+        .forEach(function (video) {
+          video.addEventListener("mouseover", function () {
+            // Check if user has interacted with the page before playing the video
+            if (document.interactive || document.pointerLockElement) {
+              video.play().catch((error) => {
+                console.error(
+                  "Playback failed due to user interaction policy",
+                  error
+                );
+              });
+            }
+          });
+
+          video.addEventListener("mouseout", function () {
+            video.pause();
+          });
+        });
+    </script>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>

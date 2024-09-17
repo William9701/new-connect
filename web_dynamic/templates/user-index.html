@@ -10,7 +10,20 @@
     />
     <script src="../static/scripts/script.js?cache_id={{ cache_id }}"></script>
   </head>
-  <body>
+  <body
+    {%
+    if
+    user
+    %}
+    data-user-id="{{ user.id }}"
+    {%
+    else
+    %}
+    data-user-id="none"
+    {%
+    endif
+    %}
+  >
     <nav class="flex-div">
       <div class="nav-left flex-div">
         <img src="../static/images/menu.png" class="menu-icon" />
@@ -176,7 +189,10 @@
           Your browser does not support the video tag.
         </video>
 
-        <div style="position: relative; top: -4.2%" class="flexi-btn">
+        <div
+          style="position: relative; top: -4.2%; transition: 1s"
+          class="flexi-btn"
+        >
           {% if user %}
           <a href="/vid-c"
             ><img
@@ -184,16 +200,13 @@
               src="../static/images/video-call.png"
               alt="Room."
           /></a>
-          <form action="/camera" method="POST">
-            <input type="hidden" name="user_id" value="{{ user.id }}" />
-            <button type="submit" style="border: none; background: none">
-              <img
-                class="hover-effect"
-                src="../static/images/videocam.png"
-                alt="Room."
-              />
-            </button>
-          </form>
+
+          <a href="/camera"
+            ><img
+              class="hover-effect"
+              src="../static/images/videocam.png"
+              alt="Room."
+          /></a>
 
           <a href="/lobby"
             ><img
