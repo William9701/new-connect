@@ -9,12 +9,107 @@
       href="../static/styles/stlye.css?cache_id={{ cache_id }}"
     />
     <script src="../static/scripts/lib-script.js?cache_id={{ cache_id }}"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #ddd;
+      }
+
+      header h1 {
+        font-size: 20px;
+        font-weight: bold;
+      }
+
+      header p {
+        font-size: 16px;
+        color: #555;
+      }
+
+      .video-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .video-card {
+        background-color: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .video-card video {
+        width: 100%;
+        height: auto;
+      }
+
+      .video-info {
+        padding: 10px;
+      }
+
+      .channel-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+      }
+
+      .profile-pic {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+      }
+
+      .text-info {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .title {
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .channel {
+        font-size: 13px;
+        color: #666;
+      }
+
+      .views {
+        font-size: 12px;
+        color: #888;
+        margin-top: 5px;
+      }
+    </style>
   </head>
   <body>
     <nav class="flex-div">
       <div class="nav-left flex-div">
         <img src="../static/images/menu.png" class="menu-icon" />
-        <a href="/content"
+        <a href="/index"
           ><img src="../static/images/Connect-logo.png" class="logo"
         /></a>
       </div>
@@ -66,15 +161,12 @@
           ><img src="../static/images/home.png" alt="" />
           <p>Home</p></a
         >
-        <a href="#"
-          ><img src="../static/images/explore.png" alt="" />
-          <p>Explore</p></a
-        >
+
         <a href="/subscription"
           ><img src="../static/images/subscriprion.png" alt="" />
-          <p>Subscription</p></a
+          <p>Subscriprion</p></a
         >
-        <a href="#"
+        <a href="/library"
           ><img src="../static/images/library.png" alt="" />
           <p>Library</p></a
         >
@@ -90,80 +182,79 @@
           ><img src="../static/images/messages.png" alt="" />
           <p>Messages</p></a
         >
-        <a href="#"
-          ><img src="../static/images/show-more.png" alt="" />
-          <p>Show More</p></a
-        >
         <hr />
       </div>
       <div class="subscribed-list">
+        <h3>SUBSCRIBERS</h3>
+        {% for subscriber in subscriber_ids%} {%set m_user =
+        get_user(subscriber)%}
+        <a href=""
+          ><img src="{{ m_user.image}}" alt="" />
+          <p>{{ m_user.first_name }} {{ m_user.last_name}}</p></a
+        >
+        {%endfor%}
+      </div>
+      <hr />
+      <div class="subscribed-list">
         <h3>SUBSCRIBED</h3>
+        {% for subscribed in subscribed_ids%} {%set m_user =
+        get_user(subscribed)%}
         <a href=""
-          ><img src="../static/images/Jack.png" alt="" />
-          <p>Jack Nicholas</p></a
+          ><img src="{{ m_user.image}}" alt="" />
+          <p>{{ m_user.first_name }} {{ m_user.last_name}}</p></a
         >
-        <a href=""
-          ><img src="../static/images/simon.png" alt="" />
-          <p>Simon Nicholas</p></a
-        >
-        <a href=""
-          ><img src="../static/images/tom.png" alt="" />
-          <p>tom Nicholas</p></a
-        >
-        <a href=""
-          ><img src="../static/images/megan.png" alt="" />
-          <p>megan Nicholas</p></a
-        >
-        <a href=""
-          ><img src="../static/images/cameron.png" alt="" />
-          <p>cameron Nicholas</p></a
-        >
+        {%endfor%}
       </div>
     </div>
 
     <!----------main--------->
 
     <div class="container">
-      <div class="list-container">
+      <header>
+        <h1>Library</h1>
+      </header>
+      <section class="video-grid">
         {% for content in contents %} {%if content.user_id == user.id%}
-        <div class="vid-list">
+        <div class="video-card">
           <a href="/play/{{ content.id }}">
             <video muted src="{{ content.content }}" class="thumbnail"></video>
           </a>
 
-          <div class="flex-div">
-            <img src="../static/images/Jack.png" />
-            <div class="vid-info">
-              <div class="info-text">
-                <a href="play/{{ content.id }}"
-                  >{{ user.first_name }} {{ user.last_name }}</a
-                >
-                <p>{{ content.description }}</p>
-                {% set ns = namespace(view_count=0) %} {% for view in views %}
-                {% if content.id == view.content_id %} {% set ns.view_count =
-                ns.view_count + 1 %} {% endif %} {% endfor %}
-                <p id="content_view">
-                  {{ ns.view_count }} {{ 'view' if ns.view_count == 1 else
-                  'views' }}
-                </p>
+          <div class="video-info">
+            <div class="channel-info">
+              <!-- <img
+                class="profile-pic"
+                src="https://via.placeholder.com/40"
+                alt="Profile Pic"
+              /> -->
+              <div class="text-info">
+                <p class="title">{{ content.description }}</p>
+                <!-- <p class="channel">Druzil Tech & Games</p> -->
               </div>
-              <a href="#" onclick="deleteContent('{{content.id}}', event)">
-                <img
-                  id="delete_logo"
-                  class="delete"
-                  src="../static/images/trash.png"
-                  alt="Delete"
-                />
-              </a>
             </div>
+            {% set ns = namespace(view_count=0) %} {% for view in views %} {% if
+            content.id == view.content_id %} {% set ns.view_count =
+            ns.view_count + 1 %} {% endif %} {% endfor %}
+            <p id="content_view" class="views">
+              {{ ns.view_count }} {{ 'view' if ns.view_count == 1 else 'views'
+              }} &bull; {{ content.created_at|format_time_diff(now) }}
+            </p>
+            <a href="#" onclick="deleteContent('{{content.id}}', event)">
+              <img
+                id="delete_logo"
+                class="delete"
+                src="../static/images/trash.png"
+                alt="Delete"
+              />
+            </a>
           </div>
         </div>
         {% endif %}{% endfor %}
-      </div>
+      </section>
     </div>
     <script>
       document
-        .querySelectorAll(".vid-list .thumbnail")
+        .querySelectorAll(".video-card .thumbnail")
         .forEach(function (video) {
           video.addEventListener("mouseover", function () {
             video.play();

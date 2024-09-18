@@ -30,6 +30,7 @@ app.secret_key = 'william667'
 bcrypt = Bcrypt(app)
 
 cache_id = str(uuid.uuid4())
+now = datetime.now()
 
 # app.jinja_env.trim_blocks = True
 # app.jinja_env.lstrip_blocks = True
@@ -373,7 +374,7 @@ def subscription():
     users = storage.all(User).values()
     views = storage.all(View).values()
     cache_id = str(uuid.uuid4())
-    return render_template('subscrition.html', user=user, cache_id=cache_id, users=users, locations=locations, contents=contents, views=views, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids)
+    return render_template('subscrition.html', user=user, cache_id=cache_id, users=users, locations=locations, contents=contents, views=views, subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids, now=now)
 
 
 @app.route('/signup', strict_slashes=False)
@@ -581,14 +582,18 @@ def library():
     user_id = session.get('user_id')
     # Fetch user data using user_id
     user = storage.get(User, user_id)
+    subscribed_ids = [
+        subscribed_user.id for subscribed_user in user.subscribed]
+    subscriber_ids = [subscriber.id for subscriber in user.subscribers]
     contents = storage.all(Content).values()
     locations = storage.all(Location).values()
     views = storage.all(View).values()
+    now = datetime.now()
 
     if user is None:
         # Handle the case where the user with the given ID is not found
         abort(404)
-    return render_template('library.html', user=user, contents=contents, locations=locations, cache_id=cache_id, views=views)
+    return render_template('library.html', user=user, contents=contents, locations=locations, cache_id=cache_id, views=views, now=now,subscribed_ids=subscribed_ids, subscriber_ids=subscriber_ids)
 
 
 @app.route('/vid-c/', strict_slashes=False)
